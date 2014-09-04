@@ -1,0 +1,25 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+DEFINE DATA
+GLOBAL USING JPOT-G
+END-DEFINE
+*
+MOVE 'N' TO REP
+MOVE 50  TO NB-C
+INPUT 'JEU MANUEL (O/N) : ' REP (AD=M)
+IF REP = 'O'
+  FETCH 'JPOT2'
+END-IF
+IF REP = 'N'
+  INPUT (AD=M) 'NB COUP : ' NB-C (EM=ZZ9)
+  FETCH 'JPOT3'
+END-IF
+IF REP = 'T'
+  INPUT (AD=M) 'NB COUP : ' NB-C (EM=ZZ9)
+  FETCH 'JPOT6'
+END-IF
+*
+END

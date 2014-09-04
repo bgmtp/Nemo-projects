@@ -1,0 +1,186 @@
+DEFINE DATA GLOBAL
+/* >Natural Source Header 000000
+/* :Mode S
+/* :CP
+/* <Natural Source Header
+/* *Zones affichées à l'écran
+ 1 EQ-DOM
+   2 EQUIPE (A11)
+   2 PLACE (N2)
+   2 PTS (N2)
+   2 MJ (N2)
+   2 MG (N2)
+   2 MN (N2)
+   2 MP (N2)
+   2 DIFF (A3)
+   2 REDEFINE DIFF
+     3 SIGNE (A1)
+     3 DIF (N2)
+   2 PTSD (N2)
+   2 MGD (N2)
+   2 MND (N2)
+   2 MPD (N2)
+   2 BPD (N2)
+   2 BCD (N2)
+   2 DIFFD (A3)
+   2 REDEFINE DIFFD
+     3 SIGNED (A1)
+     3 DIFD (N2)
+   2 STAT
+     3 NGD (N2)
+     3 NND (N2)
+     3 NPD (N2)
+     3 NFD (N2)
+     3 NTD (N2)
+     3 MOYD (P1,2)
+   2 MATCHS (A34/1:42)
+   2 SERIES (A34/1:3)
+ 1 EQ-EXT
+   2 EQUIPE (A11)
+   2 PLACE (N2)
+   2 PTS (N2)
+   2 MJ (N2)
+   2 MG (N2)
+   2 MN (N2)
+   2 MP (N2)
+   2 DIFF (A3)
+   2 REDEFINE DIFF
+     3 SIGNE (A1)
+     3 DIF (N2)
+   2 PTSE (N2)
+   2 MGE (N2)
+   2 MNE (N2)
+   2 MPE (N2)
+   2 BPE (N2)
+   2 BCE (N2)
+   2 DIFFE (A3)
+   2 REDEFINE DIFFE
+     3 SIGNEE (A1)
+     3 DIFE (N2)
+   2 STAT
+     3 NGE (N2)
+     3 NNE (N2)
+     3 NPE (N2)
+     3 NFE (N2)
+     3 NTE (N2)
+     3 MOYE (P1,2)
+   2 MATCHS (A34/1:42)
+   2 SERIES (A34/1:3)
+ 1 PRONO (A1)
+ 1 RES-D (A4/1:42)
+ 1 REDEFINE RES-D
+   2 DESCR (1:42)
+     3 BUTD1 (N1)
+     3 FILLER 1X
+     3 BUTD2 (N1)
+     3 OUD (A1)
+ 1 RES-E (A4/1:42)
+ 1 REDEFINE RES-E
+   2 DESCR (1:42)
+     3 BUTE1 (N1)
+     3 FILLER 1X
+     3 BUTE2 (N1)
+     3 OUE (A1)
+/* **
+ 1 QUI (A2)
+ 1 P (N7) /* page
+ 1 PS-TAB (A1/1:13)
+ 1 LIGNE-CL (A76/1:22)
+/* **
+/* ** Pour écriture document
+/* **
+ 1 £ZADD11A
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 TB-DESCR (A60/1:4)
+   2 TB-MOT-CLE (A15/1:6)
+   2 CD-DOC-FORMAT (A1)
+   2 TB-TXT (A251/20)
+   2 REDEFINE TB-TXT
+     3 TB-TXT-RE (20)
+       4 ZN-CARACT-CONTR (A1)
+       4 ZN-LIGNE (A76)
+       4 FILLER 174X
+   2 NO-ISN (P8)
+   2 ZN-TRAV (A21)
+/* **
+/* ** Pour Copie du Document
+/* **
+ 1 £COPY
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 NM-BURO-NEW (A8)
+   2 NM-DOC-NEW (A32)
+   2 NM-CASIER-NEW (A15)
+   2 NM-CLASSEUR-NEW (A15)
+   2 TB-DESCR (A60/1:4)
+   2 FLAG (A1)
+/* **
+/* ** Pour Suppression du Document
+/* **
+ 1 £SUPP
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 FLAG (A1)
+/* **
+/* ** Stat perso
+/* **
+ 1 £STAT
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 TB-DESCR (A60/1:4)
+   2 CD-DOC-FORMAT (A1)
+   2 CD-TYPE-TXT (A1)
+   2 NO-TYPE-TXT-TOT (P3)
+   2 NO-TYPE-TXT-COURANT (P3)
+   2 TB-TXT (A251/20)
+   2 ZN-TRAV (A240)
+   2 ZN-TRAV-2 (A79)
+/* **
+ 1 STAT-DESCR (A79)
+ 1 REDEFINE STAT-DESCR
+   2 FILLER 2X
+   2 EQUIPE1 (A9)
+   2 FILLER 1X
+   2 NB-FOIS1 (A2)
+   2 FILLER 1X
+   2 NB-VICD1 (A2)
+   2 FILLER 2X
+   2 NB-NULD1 (A2)
+   2 FILLER 2X
+   2 NB-DEFD1 (A2)
+   2 FILLER 2X
+   2 NB-VICE1 (A2)
+   2 FILLER 2X
+   2 NB-NULE1 (A2)
+   2 FILLER 2X
+   2 NB-DEFE1 (A2)
+   2 FILLER 3X
+   2 EQUIPE2 (A9)
+   2 FILLER 1X
+   2 NB-FOIS2 (A2)
+   2 FILLER 1X
+   2 NB-VICD2 (A2)
+   2 FILLER 2X
+   2 NB-NULD2 (A2)
+   2 FILLER 2X
+   2 NB-DEFD2 (A2)
+   2 FILLER 2X
+   2 NB-VICE2 (A2)
+   2 FILLER 2X
+   2 NB-NULE2 (A2)
+   2 FILLER 2X
+   2 NB-DEFE2 (A2)
+   2 FILLER 2X
+END-DEFINE

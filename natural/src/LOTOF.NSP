@@ -1,0 +1,576 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+*
+DEFINE DATA
+GLOBAL USING LOTOF-G
+LOCAL USING LOTOF-L
+LOCAL            /* Commentaires sur les données
+1 DATE (A8)      /* --- date du jour
+1 REDEFINE DATE  /*     redéfinie en :
+  2 JJ (N2)      /*     - jour
+  2 FILLER 1X
+  2 MO (N2)      /*     - mois
+  2 FILLER 1X
+  2 AA (N2)      /*     - année
+1 HH   (N2)      /* --- heure actuelle
+1 CPT  (P2)      /* --- compteurs des nombres de lignes ...
+1 CPT1 (P2)      /* --- ... dans les documents Connect lus
+1 I    (P2)      /* --- compteur ou index
+1 J    (P2)      /* --- compteur ou index
+1 CL1  (A32)     /* --- dernier classement de D1
+1 CL2  (A32)     /* --- dernier classement de D2
+1 MAX1 (A32)     /* --- dernier n° classement de D1
+1 MAX2 (A32)     /* --- dernier n° classement de D2
+1 MAXI (P2)      /* --- dernier n° classement
+1 DEB  (A1)      /* --- indicateurs de debut ...
+1 FIN  (A1)      /* --- ... et fin de lecture des résultats
+1 K    (P2)      /* --- numero du match
+1 L    (P2)      /* --- position dans le tableau des stats
+1 M    (P2)      /* --- compteur
+1 N    (P2)      /* --- compteur
+1 £EQUIPE  (A12) /* --- équipe traitée dans la recherche historique
+1 £EQUIP9  (A9)  /* --- équipe traitée dans la recherche stat
+1 RESULT (A3)    /* --- détail du résultat des matchs
+1 REDEFINE RESULT
+  2 BP (N1)
+  2 FILLER 1X
+  2 BC (N1)
+1 LG-STAT (A79/1:21) /* ligne de stat
+1 CVR     (C/1:22) /* - attribut dans l'aide
+END-DEFINE
+*
+SET KEY ALL
+DEFINE WINDOW LOTOF-W1 SIZE AUTO
+DEFINE WINDOW LOTOF-W2 SIZE 17*36
+*
+* Qui utilise le programme ?
+*
+DECIDE ON FIRST VALUE OF *USER
+  VALUE 'H04006'
+    QUI := 'MH'
+  VALUE 'H07003'
+    QUI := 'MV'
+  VALUE 'H10004'
+    QUI := 'ED'
+  VALUE 'H11001'
+    QUI := 'MC'
+  VALUE 'H50025'
+    QUI := 'MM'
+  VALUE 'H50036'
+    QUI := 'SD'
+  VALUE 'H50040'
+    QUI := 'PB'
+  VALUE 'S06630'
+    QUI := 'DT'
+  NONE VALUE
+    WRITE /////
+      8X '*************************************************************'
+      8X '* Vous n"êtes pas autorisé à utiliser ce beau programme !!! *'
+      8X '* En cas d"URGENCE, veuillez contacter votre administrateur *'
+      8X '* du Loto Sportif au poste 26.35 (de 9 à 12h & de 14 à 18h) *'
+      8X '*************************************************************'
+END-DECIDE
+*
+* Récupération de la grille de l'individu
+*
+RESET £GRILLE
+£GRILLE.NM-BURO   := 'H16007'
+£GRILLE.NM-SECRET := 'H16007'
+£GRILLE.NM-DOC    := QUI
+*
+REPEAT
+  CALLNAT 'Z-GET11B' £GRILLE
+  IF £GRILLE.CD-RETOUR = 53
+    RESET PRONO
+    PS-TAB (*) := '_'
+    ESCAPE BOTTOM
+  ELSE
+    FOR CPT = 4 TO 16
+      CPT1 := CPT - 3
+      DECIDE ON FIRST VALUE OF QUI
+        VALUE 'MH'
+          PS-TAB (CPT1) := £GRILLE.MH (CPT)
+        VALUE 'MV'
+          PS-TAB (CPT1) := £GRILLE.MV (CPT)
+        VALUE 'ED'
+          PS-TAB (CPT1) := £GRILLE.ED (CPT)
+        VALUE 'MC'
+          PS-TAB (CPT1) := £GRILLE.MC (CPT)
+        VALUE 'MM'
+          PS-TAB (CPT1) := £GRILLE.MM (CPT)
+        VALUE 'SD'
+          PS-TAB (CPT1) := £GRILLE.SD (CPT)
+        VALUE 'PB'
+          PS-TAB (CPT1) := £GRILLE.PB (CPT)
+        VALUE 'DT'
+          PS-TAB (CPT1) := £GRILLE.DT (CPT)
+        NONE VALUE IGNORE
+      END-DECIDE
+    END-FOR
+  END-IF
+  UNTIL £GRILLE.CD-RETOUR = 77
+END-REPEAT
+*
+* Récupération des matchs dans la grille
+*
+RESET £GRILLE
+£GRILLE.NM-BURO   := 'H16007'
+£GRILLE.NM-SECRET := 'H16007'
+£GRILLE.NM-DOC    := 'Grille-fille'
+*
+REPEAT
+  CALLNAT 'Z-GET11B' £GRILLE
+  IF £GRILLE.CD-RETOUR = 53
+    WRITE //////
+    8X '*************************************************************' /
+    8X '* ERREUR GRAVE !!! - PAS DE GRILLE DU LOTO SPORTIF EN COURS *' /
+    8X '* En cas d"URGENCE, veuillez contacter votre administrateur *' /
+    8X '* du Loto Sportif au poste 26.35 (de 9 à 12h & de 14 à 18h) *' /
+      8X '*************************************************************'
+    STOP
+  END-IF
+  FOR CPT = 4 TO 16
+    CPT1 := CPT - 3
+    EQUI-D (CPT1) := £GRILLE.EQUIPE-D (CPT)
+    EQUI-E (CPT1) := £GRILLE.EQUIPE-E (CPT)
+  END-FOR
+  UNTIL £GRILLE.CD-RETOUR = 77
+END-REPEAT
+EXAMINE EQUI-D (*) FOR '.' DELETE
+EXAMINE EQUI-E (*) FOR '.' DELETE
+*
+* Contrôle de la limite pour la saisie
+*
+DATE := *DATD
+MOVE EDITED *TIME TO HH (EM=99)
+IF (MO = MM-L (1) AND JJ = JJ-L (1) AND HH >= HH-L (1) ) OR
+    (MO = MM-L (1) AND JJ > JJ-L (1) ) OR
+    (MO > MM-L (1) )
+  WRITE //////
+    8X '*************************************************************' /
+    8X '* Il est TROP TARD pour saisir ou modifier votre grille !!! *' /
+    8X '* En cas d"URGENCE, veuillez contacter votre administrateur *' /
+    8X '* du Loto Sportif au poste 26.35 (de 9 à 12h & de 14 à 18h) *' /
+    8X '*************************************************************'
+  STOP
+END-IF
+*
+* Récupération des derniers classements de D1 et D2
+*
+RESET £LIST
+£LIST.NM-BURO       := 'H16007'
+£LIST.NM-SECRET     := 'H16007'
+£LIST.NM-CASIER     := 'Personnel'
+£LIST.NM-CLASSEUR   := 'Division 1'
+£LIST.NO-SEQ-CASIER := 2
+CALLNAT 'Z-DIS11' £LIST
+EXAMINE FULL £LIST.NM-DOC (*) FOR FULL 'Classement' GIVING INDEX I
+CL1 := £LIST.NM-DOC (I)
+MOVE CL1 TO MAX1
+EXAMINE MAX1 FOR 'D1-Classement ' DELETE
+*
+RESET £LIST
+£LIST.NM-BURO       := 'H16007'
+£LIST.NM-SECRET     := 'H16007'
+£LIST.NM-CASIER     := 'Personnel'
+£LIST.NM-CLASSEUR   := 'Division 2'
+£LIST.NO-SEQ-CASIER := 2
+CALLNAT 'Z-DIS11' £LIST
+EXAMINE FULL £LIST.NM-DOC (*) FOR FULL 'Classement' GIVING INDEX I
+CL2 := £LIST.NM-DOC (I)
+MOVE CL2 TO MAX2
+EXAMINE MAX2 FOR 'D2-Classement ' DELETE
+*
+* ====================
+* Traitement principal
+* ====================
+*
+FOR. FOR I = 1 TO 13
+*
+  MOVE PS-TAB (I) TO PRONO
+*
+  RESET EQ-DOM
+  RESET EQ-EXT
+  RESET RES-D (*)
+  RESET RES-E (*)
+  EQ-DOM.EQUIPE := EQUI-D (I)
+  EQ-EXT.EQUIPE := EQUI-E (I)
+*
+  EXAMINE EQUI-D1 (*) FOR EQ-DOM.EQUIPE GIVING INDEX J
+  IF J NE 0
+    PERFORM CLAS-D1
+    MOVE EQ-DOM.EQUIPE TO £EQUIPE
+    RESET £HISTO-D1
+    £HISTO-D1.NM-DOC    := 'Histo-Résultats-D1'
+    MAXI := VAL(MAX1)
+    PERFORM HISTO-D1
+  ELSE
+    EXAMINE EQUI-D2 (*) FOR EQ-DOM.EQUIPE GIVING INDEX J
+    IF J NE 0
+      PERFORM CLAS-D2
+      MOVE EQ-DOM.EQUIPE TO £EQUIPE
+      RESET £HISTO-D1
+      £HISTO-D1.NM-DOC    := 'Histo-Résultats-D2'
+      MAXI := VAL(MAX2)
+      PERFORM HISTO-D1
+    END-IF
+  END-IF
+  EXAMINE EQUI-D1 (*) FOR EQ-EXT.EQUIPE GIVING INDEX J
+  IF J NE 0
+    PERFORM CLAS-D1
+    MOVE EQ-EXT.EQUIPE TO £EQUIPE
+    RESET £HISTO-D1
+    £HISTO-D1.NM-DOC    := 'Histo-Résultats-D1'
+    MAXI := VAL(MAX1)
+    PERFORM HISTO-D1
+  ELSE
+    EXAMINE EQUI-D2 (*) FOR EQ-EXT.EQUIPE GIVING INDEX J
+    IF J NE 0
+      PERFORM CLAS-D2
+      MOVE EQ-EXT.EQUIPE TO £EQUIPE
+      RESET £HISTO-D1
+      £HISTO-D1.NM-DOC    := 'Histo-Résultats-D2'
+      MAXI := VAL(MAX2)
+      PERFORM HISTO-D1
+    END-IF
+  END-IF
+  EQ-DOM.DIFD := EQ-DOM.BPD - EQ-DOM.BCD
+  EQ-DOM.DIFD := ABS (EQ-DOM.DIFD)
+  IF EQ-DOM.BPD >= EQ-DOM.BCD
+    MOVE '+' TO EQ-DOM.SIGNED
+  ELSE
+    MOVE '-' TO EQ-DOM.SIGNED
+  END-IF
+  EQ-EXT.DIFE := EQ-EXT.BPE - EQ-EXT.BCE
+  EQ-EXT.DIFE := ABS (EQ-EXT.DIFE)
+  IF EQ-EXT.BPE >= EQ-EXT.BCE
+    MOVE '+' TO EQ-EXT.SIGNEE
+  ELSE
+    MOVE '-' TO EQ-EXT.SIGNEE
+  END-IF
+*
+  EXAMINE EQ-DOM.EQUIPE TRANSLATE INTO UPPER CASE
+  EXAMINE EQ-EXT.EQUIPE TRANSLATE INTO UPPER CASE
+*
+  FETCH RETURN 'LOTOF-S'
+*
+  P := 1
+  INPUT USING MAP 'LOTOF-M'
+*
+  IF NOT (PRONO = ' ' OR = '_' OR = '1' OR = 'N' OR = '2')
+    REINPUT 'Saivie invalide' MARK *PRONO
+  ELSE
+    MOVE PRONO TO PS-TAB (I)
+  END-IF
+*
+  IF *PF-KEY = 'PF1'
+    RESET CVR (*)
+    EXAMINE LIGNE-CL (*) FOR EQUI-D (I) GIVING INDEX N
+    MOVE (AD=I) TO CVR (N)
+    EXAMINE LIGNE-CL (*) FOR EQUI-E (I) GIVING INDEX N
+    MOVE (AD=I) TO CVR (N)
+    SET WINDOW 'LOTOF-W1'
+    INPUT WINDOW = 'LOTOF-W1' USING MAP 'LOTOF-W1'
+    SET WINDOW OFF
+    I := I - 1
+    ESCAPE TOP
+  END-IF
+  IF *PF-KEY = 'PF2'
+    SET WINDOW 'LOTOF-W2'
+    INPUT WINDOW = 'LOTOF-W2' USING MAP 'LOTOF-W2'
+    SET WINDOW OFF
+    I := I - 1
+    ESCAPE TOP
+  END-IF
+  IF *PF-KEY = 'PF3' ESCAPE BOTTOM (FOR.) END-IF
+  IF *PF-KEY = 'PF5'
+    RESET PS-TAB (*)
+    ESCAPE BOTTOM (FOR.)
+  END-IF
+  IF *PF-KEY = 'PF7'
+    P := P - 5
+    IF P <= 1 P := 1 END-IF
+    IF P = 1
+      REINPUT FULL WITH TEXT 'Début de liste des matchs'
+    ELSE
+      REINPUT FULL WITH TEXT ' '
+    END-IF
+  ELSE
+    IF *PF-KEY = 'PF8'
+      IF P >= 38
+        P := 38
+      END-IF
+      IF (EQ-DOM.MATCHS (P + 5) = ' ' AND EQ-EXT.MATCHS (P + 5) = ' ')
+        REINPUT FULL WITH TEXT 'Fin de liste des matchs'
+      ELSE
+        P := P + 5
+        REINPUT FULL WITH TEXT ' '
+      END-IF
+    END-IF
+  END-IF
+*
+  MOVE PRONO TO PS-TAB (I)
+*
+END-FOR
+*
+IF PS-TAB (*) NE ' '
+  PERFORM CREE-GRILLE
+  END TRANSACTION
+END-IF
+*
+STACK TOP COMMAND 'RETURN'
+*
+* Fin du traitement
+*
+*
+* Les Sous-routines
+* =================
+*
+DEFINE SUBROUTINE CLAS-D1
+RESET £CLAS
+£CLAS.NM-BURO   := 'H16007'
+£CLAS.NM-SECRET := 'H16007'
+£CLAS.NM-DOC    := CL1
+RESET LIGNE-CL (*)
+REPEAT
+  CALLNAT 'Z-GET11B' £CLAS
+  IF NOT (£CLAS.CD-RETOUR = 00 OR = 77) THEN STOP END-IF
+  FOR CPT = 1 TO 20
+    IF £CLAS.PLACE (CPT) = '01' THRU '18'
+      M := VAL(£CLAS.PLACE (CPT)) + 1
+      MOVE £CLAS.LIGNE (CPT) TO LIGNE-CL (M)
+      IF £CLAS.EQUIPE (CPT) = EQ-DOM.EQUIPE
+        MOVE EDITED £CLAS.PLACE  (CPT) TO EQ-DOM.PLACE  (EM=99)
+        MOVE EDITED £CLAS.POINT  (CPT) TO EQ-DOM.PTS    (EM=Z9)
+        MOVE EDITED £CLAS.JOUE   (CPT) TO EQ-DOM.MJ     (EM=Z9)
+        MOVE EDITED £CLAS.GAGNE  (CPT) TO EQ-DOM.MG     (EM=Z9)
+        MOVE EDITED £CLAS.NUL    (CPT) TO EQ-DOM.MN     (EM=Z9)
+        MOVE EDITED £CLAS.PERDU  (CPT) TO EQ-DOM.MP     (EM=Z9)
+        MOVE        £CLAS.SDIFF  (CPT) TO EQ-DOM.SIGNE
+        MOVE EDITED £CLAS.DIFF   (CPT) TO EQ-DOM.DIF    (EM=Z9)
+        MOVE EDITED £CLAS.DGAGNE (CPT) TO EQ-DOM.MGD    (EM=Z9)
+        MOVE EDITED £CLAS.DNUL   (CPT) TO EQ-DOM.MND    (EM=Z9)
+        MOVE EDITED £CLAS.DPERDU (CPT) TO EQ-DOM.MPD    (EM=Z9)
+        EQ-DOM.PTSD := (EQ-DOM.MGD * 3) + EQ-DOM.MND
+      ELSE
+        IF £CLAS.EQUIPE (CPT) = EQ-EXT.EQUIPE
+          MOVE EDITED £CLAS.PLACE  (CPT) TO EQ-EXT.PLACE  (EM=99)
+          MOVE EDITED £CLAS.POINT  (CPT) TO EQ-EXT.PTS    (EM=Z9)
+          MOVE EDITED £CLAS.JOUE   (CPT) TO EQ-EXT.MJ     (EM=Z9)
+          MOVE EDITED £CLAS.GAGNE  (CPT) TO EQ-EXT.MG     (EM=Z9)
+          MOVE EDITED £CLAS.NUL    (CPT) TO EQ-EXT.MN     (EM=Z9)
+          MOVE EDITED £CLAS.PERDU  (CPT) TO EQ-EXT.MP     (EM=Z9)
+          MOVE        £CLAS.SDIFF  (CPT) TO EQ-EXT.SIGNE
+          MOVE EDITED £CLAS.DIFF   (CPT) TO EQ-EXT.DIF    (EM=Z9)
+          MOVE EDITED £CLAS.EGAGNE (CPT) TO EQ-EXT.MGE    (EM=Z9)
+          MOVE EDITED £CLAS.ENUL   (CPT) TO EQ-EXT.MNE    (EM=Z9)
+          MOVE EDITED £CLAS.EPERDU (CPT) TO EQ-EXT.MPE    (EM=Z9)
+          EQ-EXT.PTSE := (EQ-EXT.MGE * 3) + EQ-EXT.MNE
+        END-IF
+      END-IF
+    END-IF
+  END-FOR
+  UNTIL £CLAS.CD-RETOUR = 77
+END-REPEAT
+END-SUBROUTINE
+*
+DEFINE SUBROUTINE CLAS-D2
+RESET £CLAS
+£CLAS.NM-BURO   := 'H16007'
+£CLAS.NM-SECRET := 'H16007'
+£CLAS.NM-DOC    := CL2
+RESET LIGNE-CL (*)
+REPEAT
+  CALLNAT 'Z-GET11B' £CLAS
+  IF NOT (£CLAS.CD-RETOUR = 00 OR = 77) THEN STOP END-IF
+  FOR CPT = 1 TO 20
+    IF £CLAS.PLACE (CPT) = '01' THRU '22'
+      M := VAL(£CLAS.PLACE (CPT))
+      MOVE £CLAS.LIGNE (CPT) TO LIGNE-CL (M)
+      IF £CLAS.EQUIPE (CPT) = EQ-DOM.EQUIPE
+        MOVE EDITED £CLAS.PLACE  (CPT) TO EQ-DOM.PLACE  (EM=99)
+        MOVE EDITED £CLAS.POINT  (CPT) TO EQ-DOM.PTS    (EM=Z9)
+        MOVE EDITED £CLAS.JOUE   (CPT) TO EQ-DOM.MJ     (EM=Z9)
+        MOVE EDITED £CLAS.GAGNE  (CPT) TO EQ-DOM.MG     (EM=Z9)
+        MOVE EDITED £CLAS.NUL    (CPT) TO EQ-DOM.MN     (EM=Z9)
+        MOVE EDITED £CLAS.PERDU  (CPT) TO EQ-DOM.MP     (EM=Z9)
+        MOVE        £CLAS.SDIFF  (CPT) TO EQ-DOM.SIGNE
+        MOVE EDITED £CLAS.DIFF   (CPT) TO EQ-DOM.DIF    (EM=Z9)
+        MOVE EDITED £CLAS.DGAGNE (CPT) TO EQ-DOM.MGD    (EM=Z9)
+        MOVE EDITED £CLAS.DNUL   (CPT) TO EQ-DOM.MND    (EM=Z9)
+        MOVE EDITED £CLAS.DPERDU (CPT) TO EQ-DOM.MPD    (EM=Z9)
+        EQ-DOM.PTSD := (EQ-DOM.MGD * 3) + EQ-DOM.MND
+      ELSE
+        IF £CLAS.EQUIPE (CPT) = EQ-EXT.EQUIPE
+          MOVE EDITED £CLAS.PLACE  (CPT) TO EQ-EXT.PLACE  (EM=99)
+          MOVE EDITED £CLAS.POINT  (CPT) TO EQ-EXT.PTS    (EM=Z9)
+          MOVE EDITED £CLAS.JOUE   (CPT) TO EQ-EXT.MJ     (EM=Z9)
+          MOVE EDITED £CLAS.GAGNE  (CPT) TO EQ-EXT.MG     (EM=Z9)
+          MOVE EDITED £CLAS.NUL    (CPT) TO EQ-EXT.MN     (EM=Z9)
+          MOVE EDITED £CLAS.PERDU  (CPT) TO EQ-EXT.MP     (EM=Z9)
+          MOVE        £CLAS.SDIFF  (CPT) TO EQ-EXT.SIGNE
+          MOVE EDITED £CLAS.DIFF   (CPT) TO EQ-EXT.DIF    (EM=Z9)
+          MOVE EDITED £CLAS.EGAGNE (CPT) TO EQ-EXT.MGE    (EM=Z9)
+          MOVE EDITED £CLAS.ENUL   (CPT) TO EQ-EXT.MNE    (EM=Z9)
+          MOVE EDITED £CLAS.EPERDU (CPT) TO EQ-EXT.MPE    (EM=Z9)
+          EQ-EXT.PTSE := (EQ-EXT.MGE * 3) + EQ-EXT.MNE
+        END-IF
+      END-IF
+    END-IF
+  END-FOR
+  UNTIL £CLAS.CD-RETOUR = 77
+END-REPEAT
+END-SUBROUTINE
+*
+DEFINE SUBROUTINE HISTO-D1
+£HISTO-D1.NM-BURO   := 'H16007'
+£HISTO-D1.NM-SECRET := 'H16007'
+DEB  := 'N'
+FIN  := 'N'
+REPEAT
+  CALLNAT 'Z-GET11B' £HISTO-D1
+  IF NOT (£CLAS.CD-RETOUR = 00 OR = 77) THEN STOP END-IF
+  FOR CPT = 1 TO 20
+    IF DEB = 'O'
+      IF £HISTO-D1.NJD (CPT) = 1 OR £HISTO-D1.NJE (CPT) = 1
+        MOVE 'O' TO FIN
+      END-IF
+      K := MAXI - £HISTO-D1.NJD (CPT) + 1
+      IF K NE 0 AND £HISTO-D1.NJD (CPT) NE 0
+        IF £EQUIPE = EQ-DOM.EQUIPE
+          COMPRESS  £HISTO-D1.NJD (CPT) 'e' INTO EQ-DOM.MATCHS (K)
+            LEAVING NO
+          COMPRESS  EQ-DOM.MATCHS (K) £HISTO-D1.MATCHD (CPT)
+            INTO EQ-DOM.MATCHS (K)
+          MOVE £HISTO-D1.RD (CPT) TO RESULT
+          MOVE £HISTO-D1.RD (CPT) TO RES-D (K)
+          MOVE 'D'                TO OUD   (K)
+          EQ-DOM.BPD := EQ-DOM.BPD + BP
+          EQ-DOM.BCD := EQ-DOM.BCD + BC
+        ELSE
+          MOVE £HISTO-D1.RD (CPT) TO RES-E (K)
+          MOVE 'D'                TO OUE   (K)
+          COMPRESS  £HISTO-D1.NJD (CPT) 'e' INTO EQ-EXT.MATCHS (K)
+            LEAVING NO
+          COMPRESS  EQ-EXT.MATCHS (K) £HISTO-D1.MATCHD (CPT)
+            INTO EQ-EXT.MATCHS (K)
+        END-IF
+      END-IF
+      K := MAXI - £HISTO-D1.NJE (CPT) + 1
+      IF K NE 0 AND £HISTO-D1.NJE (CPT) NE 0
+        IF £EQUIPE = EQ-EXT.EQUIPE
+          COMPRESS  £HISTO-D1.NJE (CPT) 'e' INTO EQ-EXT.MATCHS (K)
+            LEAVING NO
+          COMPRESS  EQ-EXT.MATCHS (K) £HISTO-D1.MATCHE (CPT)
+            INTO EQ-EXT.MATCHS (K)
+          MOVE £HISTO-D1.RE (CPT) TO RESULT
+          MOVE £HISTO-D1.RE (CPT) TO RES-E (K)
+          MOVE 'E'                TO OUE   (K)
+          EQ-EXT.BPE := EQ-EXT.BPE + BC
+          EQ-EXT.BCE := EQ-EXT.BCE + BP
+        ELSE
+          MOVE £HISTO-D1.RE (CPT) TO RES-D (K)
+          MOVE 'E'                TO OUD   (K)
+          COMPRESS  £HISTO-D1.NJE (CPT) 'e' INTO EQ-DOM.MATCHS (K)
+            LEAVING NO
+          COMPRESS  EQ-DOM.MATCHS (K) £HISTO-D1.MATCHE (CPT)
+            INTO EQ-DOM.MATCHS (K)
+        END-IF
+      END-IF
+      IF FIN = 'O'
+        ESCAPE BOTTOM
+      END-IF
+    END-IF
+    IF £HISTO-D1.EQUIPE (CPT) = £EQUIPE AND FIN = 'N'
+      MOVE 'O' TO DEB
+    END-IF
+  END-FOR
+  UNTIL £HISTO-D1.CD-RETOUR = 77 OR FIN = 'O'
+END-REPEAT
+END-SUBROUTINE
+*
+DEFINE SUBROUTINE CREE-GRILLE
+*
+* Suppression du document 'QUI'
+*
+£SUPP.NM-BURO   := 'H16007'
+£SUPP.NM-SECRET := 'H16007'
+£SUPP.NM-DOC    := QUI
+CALLNAT 'Z-ERA11' £SUPP
+*
+EXAMINE FULL PS-TAB (*) FOR FULL ' ' REPLACE '_'
+RESET £ZADD11A
+FOR I = 1 TO 13
+  DECIDE ON FIRST VALUE OF QUI
+    VALUE 'MH'
+      £GRILLE.MH (I+3) := PS-TAB (I)
+    VALUE 'MV'
+      £GRILLE.MV (I+3) := PS-TAB (I)
+    VALUE 'ED'
+      £GRILLE.ED (I+3) := PS-TAB (I)
+    VALUE 'MC'
+      £GRILLE.MC (I+3) := PS-TAB (I)
+    VALUE 'MM'
+      £GRILLE.MM (I+3) := PS-TAB (I)
+    VALUE 'SD'
+      £GRILLE.SD (I+3) := PS-TAB (I)
+    VALUE 'PB'
+      £GRILLE.PB (I+3) := PS-TAB (I)
+    VALUE 'DT'
+      £GRILLE.DT (I+3) := PS-TAB (I)
+    NONE VALUE IGNORE
+  END-DECIDE
+  £ZADD11A.TB-TXT (I+3) := £GRILLE.TB-TXT (I+3)
+END-FOR
+£ZADD11A.TB-TXT (1:3) := £GRILLE.TB-TXT (1:3)
+*
+* Envoi du document dans CONNECT
+*
+£ZADD11A.NM-BURO   := 'H16007'
+£ZADD11A.NM-SECRET := 'H16007'
+£ZADD11A.NM-DOC    := 'Toto'
+CALLNAT 'Z-ADD11A' £ZADD11A
+*
+IF £ZADD11A.CD-RETOUR = 00
+* Copie dans mon bureau
+  £COPY.NM-BURO         := 'H16007'
+  £COPY.NM-SECRET       := 'H16007'
+  £COPY.NM-DOC          := 'Toto'
+  £COPY.NM-BURO-NEW     := 'H16007'
+  £COPY.NM-DOC-NEW      := QUI
+  £COPY.NM-CASIER-NEW   := 'Personnel'
+  £COPY.NM-CLASSEUR-NEW := 'loto'
+  CALLNAT 'Z-COP11' £COPY
+* Suppression du doc s'il existe chez l'utilisateur
+  £SUPP.NM-BURO   := *USER
+  £SUPP.NM-DOC    := QUI
+  CALLNAT 'Z-ERA11' £SUPP
+* Copie dans le bureau de l'utilisateur
+  RESET £COPY
+  £COPY.NM-BURO         := 'H16007'
+  £COPY.NM-SECRET       := 'H16007'
+  £COPY.NM-DOC          := 'Toto'
+  £COPY.NM-BURO-NEW     := *USER
+  £COPY.NM-DOC-NEW      := QUI
+  DECIDE ON FIRST VALUE OF QUI
+    VALUE 'GB'
+      £COPY.NM-CASIER-NEW   := 'Personnel'
+      £COPY.NM-CLASSEUR-NEW := 'loto'
+    NONE VALUE IGNORE
+  END-DECIDE
+  CALLNAT 'Z-COP11' £COPY
+* Suppression du document de travail 'Toto'
+  RESET £SUPP
+  £SUPP.NM-BURO   := 'H16007'
+  £SUPP.NM-SECRET := 'H16007'
+  £SUPP.NM-DOC    := 'Toto'
+  CALLNAT 'Z-ERA11' £SUPP
+END-IF
+*
+END-SUBROUTINE
+*
+*
+END

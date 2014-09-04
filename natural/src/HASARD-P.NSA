@@ -1,0 +1,38 @@
+DEFINE DATA PARAMETER
+/* >Natural Source Header 000000
+/* :Mode S
+/* :CP
+/* <Natural Source Header
+/* ** H18005LI HASARD-P * 22/11/95 *    ***
+/* ** H15001LI HASARD-P * 15/12/92 *    ***
+/*
+/* *--------------------------------
+/* *DEFINE PARAM HASARD
+/* * ££INF = BORNE INFERIEURE
+/* * ££SUP = BORNE SUPERIEURE
+/* * ££CTR = NOMBRE DEMANDE < 50
+/* * ££CAR = TYPE NOMBRE DEMANDE
+/* *   S : PAS DE DOUBLE
+/* *   D : AVEC DOUBLE
+/* * ££OUT = TABLE OUTPUT
+/* * ££COD = CODE RETOUR
+/* *   0 : OK
+/* *   1 : ERR ££INF > ££SUP
+/* *   2 : ERR ££CTR = 0
+/* *   3 : ERR ££CTR > 50
+/* *   4 : ERR ££CAR <> 'D' OR 'S'
+/* *--------------------------------
+/*
+ 1 HASARD-PARAM
+   2 ££INF (N5)
+   2 ££SUP (N5)
+   2 ££CTR (N2)
+   2 ££CAR (A1)
+   2 ££OUT (N5/1:50)
+   2 ££COD (N1)
+/*
+/* *--------------------------------
+/* *END DEFINE PARAM HASARD
+/* *--------------------------------
+/*
+END-DEFINE

@@ -1,0 +1,255 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+DEFINE DATA
+GLOBAL USING LOT-G
+LOCAL
+1 SPACE    (A13) INIT<'             '>
+1 BLANK    (A1)  INIT<' '>
+1 £ZONE    (N16)
+1 REDEFINE £ZONE
+  2 FIL      (N11)
+  2 AL       (N2)
+  2 FIL1     (N3)
+1 PREMIERE (A1) INIT<'O'>
+1 GRIL1 (A1/1:10,1:5)
+1 GRIL2 (A1/1:10,1:5)
+1 GRIL3 (A1/1:10,1:5)
+1 GRIL4 (A1/1:10,1:5)
+1 £II      (N6)
+1 £HEUR    (N7)
+1 £I       (I1)
+1 £J       (I1)
+1 £K       (I1)
+1 £L       (I1)
+1 £M       (I1)
+1 £N       (I1)
+1 £O       (I1)
+1 £P       (I1)
+1 LIG      (N2)
+1 COL      (N2)
+1 £OK      (A2)
+END-DEFINE
+*
+DEFINE PRINTER (01) OUTPUT 'LPF5'
+FORMAT (01) PS=62
+SET KEY ALL
+REPEAT
+*
+  RESET TAB (*)
+  PERFORM INIT-GRILLE
+  FOR £I = 1 TO 6
+    MOVE 'KO' TO £OK
+    REPEAT
+      UNTIL £OK = 'OK'
+      PERFORM GENE-NB-ALEA
+      PERFORM TEST-NB-VALID
+    END-REPEAT
+    MOVE AL TO TAB(£I)
+  END-FOR
+  PERFORM AFFICH-GRILLE
+  IF *PF-KEY = 'PF12'
+    PERFORM IMPRIME-GRILLE
+  END-IF
+  IF *PF-KEY = 'PF11'
+    PERFORM IMPRIME-LES-GRILLES
+  END-IF
+  UNTIL *PF-KEY = 'PF3'
+END-REPEAT
+SET CONTROL 'WB'
+RELEASE STACK
+STACK TOP COMMAND 'RET'
+*
+STOP
+*
+*
+* ---------------------------------------------
+*
+*                SUBROUTINES
+*
+* ---------------------------------------------
+*
+*
+* ----------------------------------------
+* GéNèRE UN NOMBRE ALéATOIRE ENTRE 1 ET 49
+* ----------------------------------------
+*
+DEFINE SUBROUTINE GENE-NB-ALEA
+*
+IF PREMIERE = 'O'
+  MOVE *DATN TO £ZONE
+  MOVE *TIMN TO £HEUR
+  COMPUTE £ZONE = £ZONE * £HEUR
+  MOVE 'N' TO PREMIERE
+END-IF
+REPEAT
+  IF £ZONE LT 100000000000
+    COMPUTE £ZONE = £ZONE * 79
+  END-IF
+  IF £II = (£II / 2) * 2
+    COMPUTE £ZONE = (£ZONE / 8) * 7
+  ELSE
+    COMPUTE £ZONE = (£ZONE / 7) * 8
+  END-IF
+  UNTIL (AL LE 48)
+END-REPEAT
+ADD 1 TO AL
+*
+END-SUBROUTINE
+*
+*
+* ----------------------------------------
+* TESTE SI LE NOMBRE N'A PAS DéJA éTé TIRé
+* ----------------------------------------
+*
+DEFINE SUBROUTINE TEST-NB-VALID
+*
+FOR £J = 1 TO 6
+  IF TAB(£J) = AL
+    MOVE 'KO' TO £OK
+    ESCAPE ROUTINE
+  ELSE
+    MOVE 'OK' TO £OK
+  END-IF
+END-FOR
+*
+END-SUBROUTINE
+*
+*
+* ----------------------
+* AFFICHAGE DE LA GRILLE
+* ----------------------
+*
+DEFINE SUBROUTINE AFFICH-GRILLE
+*
+*
+PERFORM PREPAR-GRILLE
+SET CONTROL 'WL18C15B05/30F'
+INPUT USING MAP 'LOT-M'
+*
+END-SUBROUTINE
+*
+*
+* ----------------------------------------
+* PRéPARE LA GRILLE AVEC LES NUMéROS TIRéS
+* ----------------------------------------
+*
+DEFINE SUBROUTINE PREPAR-GRILLE
+*
+FOR £I = 1 TO 6
+  COMPUTE COL = ( TAB (£I) / 10) + 1
+  COMPUTE LIG = TAB (£I) + 11 - ( COL * 10 )
+  MOVE 'X' TO GRILLE ( LIG , COL )
+END-FOR
+*
+END-SUBROUTINE
+*
+*
+* ---------------------------
+* INITIALISATION DE LA GRILLE
+* ---------------------------
+*
+DEFINE SUBROUTINE INIT-GRILLE
+*
+FOR £K = 1 TO 5
+  FOR £I = 1 TO 10
+    MOVE '.' TO GRILLE ( £I , £K )
+  END-FOR
+END-FOR
+*
+END-SUBROUTINE
+*
+*
+* -----------------
+* IMPRIME LA GRILLE
+* -----------------
+*
+DEFINE SUBROUTINE IMPRIME-GRILLE
+*
+WRITE (01) '       1 2 3 4'
+WRITE (01) '     0 0 0 0 0'
+FOR £I = 0 TO 9
+  COMPUTE £J = £I + 1
+  WRITE (01) £I GRILLE(£J,*)
+END-FOR
+WRITE (01) BLANK
+WRITE (01) '--------------'
+WRITE (01) BLANK
+*
+END-SUBROUTINE
+*
+*
+* ---------------------
+* IMPRIME LES 8 GRILLES
+* ---------------------
+*
+DEFINE SUBROUTINE IMPRIME-LES-GRILLES
+*
+PERFORM IMPRIME-ENTETE
+*
+FOR £M = 1 TO 2
+  WRITE (01) SPACE '       1 2 3 4        1 2 3 4'
+    '       1 2 3 4        1 2 3 4'
+  WRITE (01) SPACE '     0 0 0 0 0      0 0 0 0 0'
+    '     0 0 0 0 0      0 0 0 0 0'
+  FOR £N = 1 TO 4
+    RESET TAB (*)
+    PERFORM INIT-GRILLE
+    FOR £I = 1 TO 6
+      MOVE 'KO' TO £OK
+      REPEAT
+        UNTIL £OK = 'OK'
+        PERFORM GENE-NB-ALEA
+        PERFORM TEST-NB-VALID
+      END-REPEAT
+      MOVE AL TO TAB(£I)
+    END-FOR
+    PERFORM PREPAR-GRILLE
+    DECIDE ON FIRST VALUE OF £N
+      VALUE 1
+        MOVE GRILLE(*,*) TO GRIL1(*,*)
+      VALUE 2
+        MOVE GRILLE(*,*) TO GRIL2(*,*)
+      VALUE 3
+        MOVE GRILLE(*,*) TO GRIL3(*,*)
+      VALUE 4
+        MOVE GRILLE(*,*) TO GRIL4(*,*)
+      NONE VALUE IGNORE
+    END-DECIDE
+  END-FOR
+  FOR £O = 0 TO 9
+    COMPUTE £P = £O + 1
+    WRITE (01) SPACE £O GRIL1(£P,*) £O GRIL2(£P,*)
+      £O GRIL3(£P,*) £O GRIL4(£P,*)
+  END-FOR
+  WRITE (01) BLANK
+  WRITE (01) BLANK
+  WRITE (01) BLANK
+END-FOR
+*
+END-SUBROUTINE
+*
+*
+* -----------------------------
+* IMPRIME L'ENTETE DE LA GRILLE
+* -----------------------------
+*
+DEFINE SUBROUTINE IMPRIME-ENTETE
+*
+WRITE (01) BLANK
+WRITE (01) BLANK
+WRITE (01) BLANK
+WRITE (01) BLANK
+WRITE (01) BLANK
+WRITE (01) SPACE SPACE '     ** TIRAGE DE 8 GRILLES **'
+WRITE (01) SPACE SPACE '        -------------------'
+WRITE (01) BLANK
+WRITE (01) BLANK
+WRITE (01) BLANK
+WRITE (01) BLANK
+WRITE (01) BLANK
+END-SUBROUTINE
+*
+END

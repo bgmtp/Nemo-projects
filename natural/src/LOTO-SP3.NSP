@@ -1,0 +1,674 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+* Programme génération grilles multiples
+*
+DEFINE DATA
+LOCAL USING LOTO-SL2
+LOCAL
+1 PRO (A5/1:13,1:24)
+1 CPT  (P2)
+1 CPT1 (P2)
+1 £A       (A48/1:13)
+1 £P       (A1/1:13,1:24)
+1 £I       (P2)
+1 IND1     (A1/1:13)
+1 INDN     (A1/1:13)
+1 IND2     (A1/1:13)
+1 I        (N2)
+1 J        (N2)
+1 K        (N2)
+1 A        (N2)
+1 B        (N2)
+1 NB-FIX   (N2)
+1 NB-MULT  (N2)
+1 NB-RESULT (N2)
+1 TB-FIX1  (A1/1:13)
+1 TB-FIXN  (A1/1:13)
+1 TB-FIX2  (A1/1:13)
+1 TB-MULTI (A3/1:13)
+1 REDEFINE TB-MULTI
+  2 TB-MULT  (1:13)
+    3 TB-MULT1 (A1)
+    3 TB-MULTN (A1)
+    3 TB-MULT2 (A1)
+END-DEFINE
+*
+£ZGET11B.NM-BURO := 'H16007'
+£ZGET11B.NM-DOC  := 'Grille-commune'
+*
+REPEAT
+  CALLNAT 'Z-GET11B' £ZGET11B
+  NO-GRILLE-A := SUBSTRING(£ZGET11B.ZN-CARACT-TXT-EQUIPE-2 (1),1,2)
+  FOR CPT = 4 TO 16
+    CPT1 := CPT -3
+    SEL-1 (CPT1) := £ZGET11B.ZN-CARACT-TXT-1(CPT)
+    SEL-N (CPT1) := £ZGET11B.ZN-CARACT-TXT-N(CPT)
+    SEL-2 (CPT1) := £ZGET11B.ZN-CARACT-TXT-2(CPT)
+  END-FOR
+  UNTIL £ZGET11B.CD-RETOUR = 77
+END-REPEAT
+*
+SET KEY PF3
+DEFINE PRINTER (1) OUTPUT 'LPF4'
+MOVE 1 TO J
+*
+SET CONTROL 'MB'
+REPEAT
+  INPUT USING MAP 'LOTO-SM2'
+  RESET NB-FIX NB-MULT BILAN (*) NB-GOOD
+  IF *PF-KEY = 'PF3'
+    ESCAPE BOTTOM
+  END-IF
+  FOR I=1 TO 13
+    IF SEL-1(I) = ' ' OR = '.'
+      IF SEL-N(I) = ' ' OR = '.'
+        IF SEL-2(I) = ' ' OR = '.'
+          REINPUT 'ça t"ennuierai de jouer ce match-là' MARK *SEL-1(I)
+        ELSE
+          ADD 1 TO NB-FIX
+          MOVE 'x' TO TB-FIX2(I)
+        END-IF
+      ELSE
+        IF SEL-2(I) = ' ' OR = '.'
+          ADD 1 TO NB-FIX
+          MOVE 'x' TO TB-FIXN(I)
+        ELSE
+          ADD 1 TO NB-MULT
+          MOVE 'x' TO TB-MULTN(I)
+          MOVE 'x' TO TB-MULT2(I)
+        END-IF
+      END-IF
+    ELSE
+      IF SEL-N(I) = ' ' OR = '.'
+        IF SEL-2(I) = ' ' OR = '.'
+          ADD 1 TO NB-FIX
+          MOVE 'x' TO TB-FIX1(I)
+        ELSE
+          ADD 1 TO NB-MULT
+          MOVE 'x' TO TB-MULT1(I)
+          MOVE 'x' TO TB-MULT2(I)
+        END-IF
+      ELSE
+        IF SEL-2(I) = ' ' OR = '.'
+          ADD 1 TO NB-MULT
+          MOVE 'x' TO TB-MULT1(I)
+          MOVE 'x' TO TB-MULTN(I)
+        ELSE
+          REINPUT 'un triple, c"est plus cher !!' MARK *SEL-1(I)
+        END-IF
+      END-IF
+    END-IF
+*
+    IF RESULT(I) NE ' ' AND RESULT(I) NE '1' AND
+        RESULT(I) NE 'N' AND RESULT(I) NE '2'
+      REINPUT 'ce résultat est très étrange !!' MARK *RESULT(I)
+    END-IF
+*
+    IF (RESULT(I) = '1' AND ( TB-FIX1(I) NE ' ' OR TB-MULT1(I) NE ' ' ))
+    OR (RESULT(I) = 'N' AND ( TB-FIXN(I) NE ' ' OR TB-MULTN(I) NE ' ' ))
+    OR (RESULT(I) = '2' AND ( TB-FIX2(I) NE ' ' OR TB-MULT2(I) NE ' ' ))
+      ADD 1 TO NB-GOOD
+    END-IF
+  END-FOR
+*
+* IF NB-FIX NE 4
+*   REINPUT 'cette grille n"est pas dans nos conventions' MARK *SEL-1(1)
+* END-IF
+*
+  IF CHOIX-1 = ' ' AND CHOIX-2 = 0 AND RESULT(*) = ' '
+    REINPUT 'et j''en fais quoi, moi, de cette grille ?' MARK *CHOIX-1
+  ELSE
+    IF (CHOIX-1 NE ' ' AND CHOIX-2 NE 0) OR
+        (CHOIX-1 NE ' ' AND RESULT(1) NE ' ') OR
+        (CHOIX-2 NE 0   AND RESULT(1) NE ' ')
+      REINPUT 'boire ou conduire, il faut choisir !!!' MARK *CHOIX-1
+    ELSE
+      IF CHOIX-2 > 24
+        REINPUT 'à plus de 24 grilles, le buraliste hurle' MARK *CHOIX-2
+      END-IF
+    END-IF
+  END-IF
+*
+  IF CHOIX-1 NE ' ' OR RESULT (1) NE ' '
+    MOVE 1 TO A
+    MOVE 24 TO B
+  ELSE
+    MOVE CHOIX-2 TO A B
+  END-IF
+*
+  IF NOT (OPT = 'I' OR = 'C') AND RESULT (1) = ' '
+    REINPUT 'tu sais pas lire ???' MARK *OPT
+  END-IF
+*
+  RESET £P (*,*)
+  FOR I=A TO B
+    RESET IND1(*) INDN(*) IND2(*) NB-RESULT
+    MOVE TB-FIX1(*) TO IND1(*)
+    MOVE TB-FIXN(*) TO INDN(*)
+    MOVE TB-FIX2(*) TO IND2(*)
+    MOVE 1 TO K
+    FOR J=1 TO 13
+      IF TB-FIX1(J) NE ' ' OR TB-FIXN(J) NE ' ' OR TB-FIX2(J) NE ' '
+        IGNORE
+      ELSE
+        DECIDE ON FIRST VALUE OF I
+          VALUE 1
+            IF TB-MULT1(J) NE ' '
+              MOVE 'x' TO IND1(J)
+            ELSE
+              MOVE 'x' TO INDN(J)
+            END-IF
+          VALUE 2
+            IF TB-MULT1(J) NE ' '
+              IF K NE 8
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 8
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 3
+            IF TB-MULT1(J) NE ' '
+              IF K NE 7 AND K NE 9
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 7 AND K NE 9
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 4
+            IF TB-MULT1(J) NE ' '
+              IF K NE 5 AND K NE 6
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 5 AND K NE 6
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 5
+            IF TB-MULT1(J) NE ' '
+              IF K < 5
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K < 5
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 6
+            IF TB-MULT1(J) NE ' '
+              IF K NE 3 AND K NE 7 AND K NE 9
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 3 AND K NE 7 AND K NE 9
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 7
+            IF TB-MULT1(J) NE ' '
+              IF K NE 3 AND K NE 6 AND K NE 9
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 3 AND K NE 6 AND K NE 9
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 8
+            IF TB-MULT1(J) NE ' '
+              IF K NE 3 AND K NE 6 AND K NE 8
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 3 AND K NE 6 AND K NE 8
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 9
+            IF TB-MULT1(J) NE ' '
+              IF K NE 3 AND K NE 5 AND K LT 8
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 3 AND K NE 5 AND K LT 8
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 10
+            IF TB-MULT1(J) NE ' '
+              IF K NE 3 AND K NE 5 AND K NE 7 AND K NE 8
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 3 AND K NE 5 AND K NE 7 AND K NE 8
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 11
+            IF TB-MULT1(J) NE ' '
+              IF K NE 2 AND K NE 4 AND K NE 6 AND K NE 8
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 2 AND K NE 4 AND K NE 6 AND K NE 8
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 12
+            IF TB-MULT1(J) NE ' '
+              IF K = 1 OR K = 3 OR K = 6 OR K = 8
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K = 1 OR K = 3 OR K = 6 OR K = 8
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 13
+            IF TB-MULT1(J) NE ' '
+              IF K NE 2 AND K NE 3 AND K NE 4 AND K LT 8
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 2 AND K NE 3 AND K NE 4 AND K LT 8
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 14
+            IF TB-MULT1(J) NE ' '
+              IF K = 1 OR K GT 7
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K = 1 OR K GT 7
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 15
+            IF TB-MULT1(J) NE ' '
+              IF K NE 1 AND K NE 4 AND K NE 7
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 1 AND K NE 4 AND K NE 7
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 16
+            IF TB-MULT1(J) NE ' '
+              IF K = 2 OR K = 3 OR K = 7
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K = 2 OR K = 3 OR K = 7
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 17
+            IF TB-MULT1(J) NE ' '
+              IF K = 2 OR K = 5 OR K = 8
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K EQ 2 OR K EQ 5 OR K EQ 8
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 18
+            IF TB-MULT1(J) NE ' '
+              IF K = 2 OR K = 6 OR K = 7 OR K = 9
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K = 2 OR K = 6 OR K = 7 OR K = 9
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 19
+            IF TB-MULT1(J) NE ' '
+              IF K = 3 OR K = 4 OR K = 5 OR K = 9
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K = 3 OR K = 4 OR K = 5 OR K = 9
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 20
+            IF TB-MULT1(J) NE ' '
+              IF K NE 5 AND K NE 9 AND K GT 2
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 5 AND K NE 9 AND K GT 2
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 21
+            IF TB-MULT1(J) NE ' '
+              IF K NE 4 AND K GT 2
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K NE 4 AND K GT 2
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 22
+            IF TB-MULT1(J) NE ' '
+              IF K = 3 OR K = 6
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K = 3 OR K = 6
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 23
+            IF TB-MULT1(J) NE ' '
+              IF K GT 3 AND K LT 7
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K GT 3 AND K LT 7
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          VALUE 24
+            IF TB-MULT1(J) NE ' '
+              IF K = 4 OR K GT 6
+                MOVE 'x' TO IND1(J)
+              ELSE
+                IF TB-MULTN(J) NE ' '
+                  MOVE 'x' TO INDN(J)
+                ELSE
+                  MOVE 'x' TO IND2(J)
+                END-IF
+              END-IF
+            ELSE
+              IF K = 4 OR K GT 6
+                MOVE 'x' TO INDN(J)
+              ELSE
+                MOVE 'x' TO IND2(J)
+              END-IF
+            END-IF
+          NONE VALUE
+            IGNORE
+        END-DECIDE
+        ADD 1 TO K
+      END-IF
+      IF ( IND1(J) = 'x' AND RESULT(J) = '1' ) OR
+          ( INDN(J) = 'x' AND RESULT(J) = 'N' ) OR
+          ( IND2(J) = 'x' AND RESULT(J) = '2' )
+        ADD 1 TO NB-RESULT
+      END-IF
+    END-FOR
+*
+    IF RESULT (1) NE ' '
+      ADD 1 TO NB-RESULT
+      ADD 1 TO BILAN (NB-RESULT)
+    END-IF
+*
+    FOR £I = 1 TO 13
+*     MOVE '1 N 2' TO PRO (£I,I)
+      MOVE '£££££' TO PRO (£I,I)
+      IF IND1 (£I) NE ' '
+*       MOVE IND1 (£I) TO SUBSTRING(PRO (£I,I),1,1)
+        MOVE '1' TO SUBSTRING(PRO (£I,I),1,1)
+      END-IF
+      IF INDN (£I) NE ' '
+*       MOVE INDN (£I) TO SUBSTRING(PRO (£I,I),3,1)
+        MOVE 'N' TO SUBSTRING(PRO (£I,I),3,1)
+      END-IF
+      IF IND2 (£I) NE ' '
+*       MOVE IND2 (£I) TO SUBSTRING(PRO (£I,I),5,1)
+        MOVE '2' TO SUBSTRING(PRO (£I,I),5,1)
+      END-IF
+    END-FOR
+  END-FOR
+*
+  IF OPT = 'C'
+    FOR J=1 TO 4
+      IF J = 1
+        RESET £ZADD11A
+        £ZADD11A.NM-BURO      := 'H16007'
+        COMPRESS 'LOTO SPORTIF n°' NO-GRILLE-A
+          INTO £ZADD11A.ZN-LIGNE (1)
+        £ZADD11A.ZN-LIGNE (2) := '=================='
+        MOVE 'Toto' TO £ZADD11A.NM-DOC
+      ELSE
+        COMPRESS '------------------------------------+-------+-------+'
+          '-------+-------+-------'
+          INTO £ZADD11A.ZN-LIGNE (1) LEAVING NO
+        RESET £ZADD11A.ZN-LIGNE (2:3)
+      END-IF
+      FOR I=1 TO 13
+        FOR £I = 1 TO 6
+          K := (6*(J - 1)) + £I
+          COMPRESS PRO (I,K) '£!£'
+            £A (I) INTO £A (I) LEAVING NO
+        END-FOR
+        EXAMINE £A (I) FOR '£' REPLACE ' '
+        CPT1 := I + 3
+        COMPRESS £ZGET11B.ZN-CARACT-TXT-EQUIPE-1 (CPT1)
+          '/' £ZGET11B.ZN-CARACT-TXT-EQUIPE-2 (CPT1)
+          ':' £A (I) INTO £ZADD11A.ZN-LIGNE (CPT1)
+      END-FOR
+*     Envoi du document dans CONNECT
+      CALLNAT 'Z-ADD11A' £ZADD11A
+    END-FOR
+    IF £ZADD11A.CD-RETOUR NE 00
+      REINPUT 'Problème dans la génération du document CONNECT'
+    ELSE
+*
+*     Copie dans le casier FOOT
+*
+      IF CHOIX-1 = 'O'
+        COMPRESS 'Grille n°' NO-GRILLE 'X 24' INTO £COPY.NM-DOC-NEW
+      ELSE
+        COMPRESS 'Grille n°' NO-GRILLE ':' CHOIX-2
+          INTO £COPY.NM-DOC-NEW
+      END-IF
+      £COPY.NM-BURO         := 'H16007'
+      £COPY.NM-DOC          := 'Toto'
+      £COPY.NM-BURO-NEW     := 'H16007'
+      £COPY.NM-CASIER-NEW   := 'Personnel'
+      £COPY.NM-CLASSEUR-NEW := 'loto'
+      CALLNAT 'Z-COP11' £COPY
+*
+*     Suppression du document de travail 'Toto'
+*
+      £SUPP.NM-BURO := 'H16007'
+      £SUPP.NM-DOC  := 'Toto'
+      CALLNAT 'Z-ERA11' £SUPP
+      REINPUT 'Document créé'
+    END-IF
+  END-IF
+*
+  UNTIL *PF-KEY = 'PF3'
+END-REPEAT
+*
+END

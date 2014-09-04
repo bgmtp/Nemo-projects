@@ -1,0 +1,116 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+* Programme établissant les stats individuelles
+*
+DEFINE DATA
+LOCAL USING LOTOSL4
+LOCAL
+1 I (P2)
+1 J (P2)
+1 IND (P2)
+1 QUI (A2)
+1 PRON (A1/4:16)
+1 RESUL (A1/4:16)
+1 BON (N2)
+1 MOY (N2,2)
+1 £EQUIPE (A9/1:40) INIT <
+  'Auxerre..', 'Bastia...', 'Bordeaux.', 'Cannes...', 'CHateauro',
+  'Guingamp.', 'Le Havre.', 'Lens.....', 'Lyon.....', 'Marseille',
+  'Metz.....', 'Monaco...', 'Montpelli', 'Nantes...', 'Paris SG.',
+  'Rennes...', 'Strasbour', 'Toulouse.',
+*
+  'Amiens...', 'Beauvais.', 'Caen.....', 'Gueugnon.', 'Laval....',
+  'Le Mans..', 'Lille....', 'Lorient..', 'Louhans-C', 'Martigues',
+  'Mulhouse.', 'Nancy....', 'Nice.....', 'Nîmes....', 'Niort....',
+  'Red Star.', 'Sochaux..', 'St Etienn', 'Toulon...', 'Troyes...',
+  'Valence..', 'Wasquehal'>
+END-DEFINE
+*
+DEFINE PRINTER (1) OUTPUT 'LPHP'
+FORMAT (1) PS=66
+*
+INPUT (AD=MI'_') 'Qui ?' QUI '(Mettre "__" pour sortir)'
+IF QUI = ' ' ESCAPE ROUTINE END-IF
+IF NOT(QUI ='CB' OR='NB' OR='GK' OR='YM' OR='PR' OR='GB' OR='SL'
+  OR ='GM')
+  REINPUT 'Essaye encore !'
+END-IF
+*
+* Récup du document 'Stat'
+*
+£STAT.NM-BURO := 'S10316'
+COMPRESS 'Stat-' QUI INTO £STAT.NM-DOC LEAVING NO
+*
+I := 0
+REPEAT
+  CALLNAT 'Z-GET11B' £STAT
+  FOR J = 1 TO 20
+    ADD 1 TO I
+    ZN-TEMP (I) := £STAT.TB-TXT (J)
+  END-FOR
+  UNTIL £STAT.CD-RETOUR = 77
+END-REPEAT
+*
+* Recalcul du tableau par équipe
+*
+FOR I = 1 TO 40
+  IF I = 1
+    WRITE (1) 'Stat de' QUI
+    WRITE (1) ' '
+    WRITE (1) 'Equipes de D1'
+    WRITE (1) '-------------                                  GD  ND'
+      -'  PD  GE  NE  PE'
+  ELSE
+    IF I = 19
+      WRITE (1) ' '
+      WRITE (1) 'Equipes de D2'
+      WRITE (1) '-------------                                  GD  ND'
+        -'  PD  GE  NE  PE'
+    END-IF
+  END-IF
+  DECIDE FOR EVERY CONDITION
+    WHEN ZN-TAMPON.EQUIPE1 (*) = £EQUIPE (I)
+      EXAMINE ZN-TAMPON.EQUIPE1 (*) FOR £EQUIPE (I)
+        GIVING INDEX IND
+      RESET BON MOY
+      ADD ZN-TAMPON.NB-VICD1 (IND) ZN-TAMPON.NB-NULD1 (IND)
+        ZN-TAMPON.NB-DEFD1 (IND) ZN-TAMPON.NB-VICE1 (IND)
+        ZN-TAMPON.NB-NULE1 (IND) ZN-TAMPON.NB-DEFE1 (IND) TO BON
+      IF ZN-TAMPON.NB-FOIS1 (IND) = 0
+        WRITE (1) £EQUIPE (I) '  Jamais pronostiquée'
+      ELSE
+        MOY := BON / ZN-TAMPON.NB-FOIS1 (IND)
+        WRITE (1) £EQUIPE (I) BON ' /' ZN-TAMPON.NB-FOIS1 (IND)
+          ' soit' MOY '  détail : '
+          ZN-TAMPON.NB-VICD1 (IND) ZN-TAMPON.NB-NULD1 (IND)
+          ZN-TAMPON.NB-DEFD1 (IND) ZN-TAMPON.NB-VICE1 (IND)
+          ZN-TAMPON.NB-NULE1 (IND) ZN-TAMPON.NB-DEFE1 (IND)
+      END-IF
+    WHEN ZN-TAMPON.EQUIPE2 (*) = £EQUIPE (I)
+      EXAMINE ZN-TAMPON.EQUIPE2 (*) FOR £EQUIPE (I)
+        GIVING INDEX IND
+      RESET BON MOY
+      ADD ZN-TAMPON.NB-VICD2 (IND) ZN-TAMPON.NB-NULD2 (IND)
+        ZN-TAMPON.NB-DEFD2 (IND) ZN-TAMPON.NB-VICE2 (IND)
+        ZN-TAMPON.NB-NULE2 (IND) ZN-TAMPON.NB-DEFE2 (IND) TO BON
+      IF ZN-TAMPON.NB-FOIS2 (IND) = 0
+        WRITE (1) £EQUIPE (I) '  Jamais pronostiquée'
+      ELSE
+        MOY := BON / ZN-TAMPON.NB-FOIS2 (IND)
+        WRITE (1) £EQUIPE (I) BON ' /' ZN-TAMPON.NB-FOIS2 (IND)
+          ' soit' MOY '  détail : '
+          ZN-TAMPON.NB-VICD2 (IND) ZN-TAMPON.NB-NULD2 (IND)
+          ZN-TAMPON.NB-DEFD2 (IND) ZN-TAMPON.NB-VICE2 (IND)
+          ZN-TAMPON.NB-NULE2 (IND) ZN-TAMPON.NB-DEFE2 (IND)
+      END-IF
+    WHEN NONE IGNORE
+  END-DECIDE
+END-FOR
+*
+RESET QUI
+WRITE 'Document envoyé à l"imprimante'
+*
+END

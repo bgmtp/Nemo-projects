@@ -1,0 +1,113 @@
+DEFINE DATA LOCAL
+/* >Natural Source Header 000000
+/* :Mode S
+/* :CP
+/* <Natural Source Header
+/* **
+/* ** Pour lecture document
+/* **
+ 1 £ZGET11B
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 TB-DESCR (A60/1:4)
+   2 CD-DOC-FORMAT (A1)
+   2 CD-TYPE-TXT (A1)
+   2 NO-TYPE-TXT-TOT (P3)
+   2 NO-TYPE-TXT-COURANT (P3)
+   2 TB-TXT (A251/20)
+   2 REDEFINE TB-TXT /* REDEF. BEGIN : TB-TXT
+     3 TB-TXT-RE (20)
+       4 ZN-CARACT-CONTR (A1)
+       4 FILLER 5X
+       4 EQUIPE-1 (A12)
+       4 FILLER 5X
+       4 EQUIPE-2 (A12)
+       4 FILLER 7X
+       4 CB (A1)
+       4 FILLER 2X
+       4 NB (A1)
+       4 FILLER 2X
+       4 GK (A1)
+       4 FILLER 2X
+       4 SL (A1)
+       4 FILLER 2X
+       4 YM (A1)
+       4 FILLER 2X
+       4 GM (A1)
+       4 FILLER 2X
+       4 PR (A1)
+       4 FILLER 2X
+       4 GB (A1)
+       4 FILLER 5X
+       4 TOT-1 (A1)
+       4 FILLER 2X
+       4 TOT-N (A1)
+       4 FILLER 2X
+       4 TOT-2 (A1)
+       4 ZN-CARACT-TXT-F6 (A175)
+   2 ZN-TRAV (A240)
+   2 ZN-TRAV-2 (A79)
+/* **
+/* ** Pour écriture document
+/* **
+ 1 £ZADD11A
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 TB-DESCR (A60/1:4)
+   2 TB-MOT-CLE (A15/1:6)
+   2 CD-DOC-FORMAT (A1)
+   2 TB-TXT (A251/20)
+   2 REDEFINE TB-TXT /* REDEF. BEGIN : TB-TXT
+     3 TB-TXT-RE (20)
+       4 ZN-CARACT-CONTR (A1)
+       4 ZN-LIGNE (A76)
+       4 ZN-FILLER (A174)
+   2 NO-ISN (P8)
+   2 ZN-TRAV (A21)
+/* **
+/* ** Zones de la map
+/* **
+ 1 NB-1 (N1/1:13)
+ 1 NB-N (N1/1:13)
+ 1 NB-2 (N1/1:13)
+ 1 CHOIX-1 (A1)
+ 1 CHOIX-2 (N2)
+ 1 OPT (A1)
+ 1 NO-GRILLE (N2)
+ 1 REDEFINE NO-GRILLE
+   2 NO-GRILLE-A (A2)
+ 1 RESULT (A1/1:13)
+ 1 BILAN (N2/1:14)
+ 1 NB-GOOD (N2)
+/* **
+/* **
+/* ** Pour Copie du Document
+/* **
+ 1 £COPY
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 NM-BURO-NEW (A8)
+   2 NM-DOC-NEW (A32)
+   2 NM-CASIER-NEW (A15)
+   2 NM-CLASSEUR-NEW (A15)
+   2 TB-DESCR (A60/1:4)
+   2 FLAG (A1)
+/* **
+/* ** Pour Suppression du Document
+/* **
+ 1 £SUPP
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 FLAG (A1)
+END-DEFINE

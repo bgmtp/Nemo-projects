@@ -1,0 +1,56 @@
+DEFINE DATA GLOBAL
+/* >Natural Source Header 000000
+/* :Mode S
+/* :CP
+/* <Natural Source Header
+/* **
+ 1 P (N7)
+ 1 RS (A3/1:21,1:13,1:2)
+ 1 PS (A1)
+ 1 PS-TAB (A1/1:13)
+/* **
+/* **
+/* ** Pour écriture document
+/* **
+ 1 £ZADD11A
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 TB-DESCR (A60/1:4)
+   2 TB-MOT-CLE (A15/1:6)
+   2 CD-DOC-FORMAT (A1)
+   2 TB-TXT (A251/20)
+   2 REDEFINE TB-TXT
+     3 TB-TXT-RE (20)
+       4 ZN-CARACT-CONTR (A1)
+       4 ZN-LIGNE (A76)
+       4 FILLER 174X
+   2 NO-ISN (P8)
+   2 ZN-TRAV (A21)
+/* **
+/* ** Pour Copie du Document
+/* **
+ 1 £COPY
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 NM-BURO-NEW (A8)
+   2 NM-DOC-NEW (A32)
+   2 NM-CASIER-NEW (A15)
+   2 NM-CLASSEUR-NEW (A15)
+   2 TB-DESCR (A60/1:4)
+   2 FLAG (A1)
+/* **
+/* ** Pour Suppression du Document
+/* **
+ 1 £SUPP
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 FLAG (A1)
+END-DEFINE

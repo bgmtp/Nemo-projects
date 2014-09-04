@@ -1,0 +1,121 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* <Natural Source Header
+* MAP2: PROTOTYPE
+* INPUT USING MAP 'XXXXXXXX'
+*     CUM-AM CUM-INT CUM-PM CUM-SOU CUM-TOT GARAGE H-AM-1 H-AM-2 H-PM-1
+*     H-PM-2 JOUR JOUR-P(*) NORMAL PAUSE PREVISION(*) SIGNE-P(*)
+*     SIGNE-S SIGNE-1 SIGNE-2 SIGNE-3 SOLDE-A SOLDE-N TOT
+DEFINE DATA PARAMETER
+1 CUM-AM (T)
+1 CUM-INT (T)
+1 CUM-PM (T)
+1 CUM-SOU (T)
+1 CUM-TOT (T)
+1 GARAGE (T)
+1 H-AM-1 (T)
+1 H-AM-2 (T)
+1 H-PM-1 (T)
+1 H-PM-2 (T)
+1 JOUR (A003)
+1 JOUR-P (A003/00001:00004)
+1 NORMAL (T)
+1 PAUSE (T)
+1 PREVISION (T/00001:00004)
+1 SIGNE-P (A001/00001:00004)
+1 SIGNE-S (A001)
+1 SIGNE-1 (A001)
+1 SIGNE-2 (A001)
+1 SIGNE-3 (A001)
+1 SOLDE-A (T)
+1 SOLDE-N (T)
+1 TOT (T)
+END-DEFINE
+FORMAT PS=023 LS=080 ZP=OFF SG=OFF KD=OFF IP=OFF
+* MAP2: MAP PROFILES *****************************        200***********
+* ,TTAAAMMOO   D I D I N D I D I        ?_)^&:+(                       *
+* 023079        N0 NUCN             X        01 SYSPROF NL           1 *
+************************************************************************
+INPUT          (     IP=OFF                                           /*
+                                                                       )
+ 002T *DATE  (AD=OI ) /*.01S008 A008 .
+/
+ 002T *TIMX  (AD=OI ) /*.01S008 T    .
+ 035T 'B E B A'(I)
+/
+/
+/
+/
+/
+/
+ 001T 'solde'
+ 017T SIGNE-1  (AD=MILT ) /*.99D001 A001 .
+ 019T SOLDE-A  (AD=MILT ) /*.99D008 T    .
+ 039T 'jour'
+ 045T JOUR  (AD=OILT ) /*.01D003 A003 .
+/
+/
+ 001T 'heure debut (am)'
+ 019T H-AM-1  (AD=MILT ) /*.99D008 T    .
+ 029T 'heure fin (am)'
+ 045T H-AM-2  (AD=MILT ) /*.99D008 T    .
+ 055T 'cumul (am)'
+ 067T CUM-AM  (AD=MILT ) /*.99D008 T    .
+/
+ 001T 'heure debut (pm)'
+ 019T H-PM-1  (AD=MILT ) /*.99D008 T    .
+ 029T 'heure fin (pm)'
+ 045T H-PM-2  (AD=MILT ) /*.99D008 T    .
+ 055T 'cumul (pm)'
+ 067T CUM-PM  (AD=MILT ) /*.99D008 T    .
+/
+ 018T 'heure inter'
+ 031T PAUSE  (AD=OILT ) /*.01D008 T    .
+/
+ 018T 'pause'
+ 031T GARAGE  (AD=MILT ) /*.99D008 T    .
+/
+/
+ 001T 'cumul total'
+ 019T CUM-TOT  (AD=OILT ) /*.01D008 T    .
+ 029T 'cumul souhaite'
+ 045T CUM-SOU  (AD=MILT ) /*.99D008 T    .
+/
+ 001T 'base'
+ 019T NORMAL  (AD=OILT ) /*.01D008 T    .
+/
+ 001T 'heure sup'
+ 017T SIGNE-2  (AD=OILT ) /*.01D001 A001 .
+ 019T CUM-INT  (AD=OILT ) /*.01D008 T    .
+/
+ 001T 'nouveau solde'
+ 017T SIGNE-3  (AD=OILT ) /*.01D001 A001 .
+ 019T SOLDE-N  (AD=OILT ) /*.01D008 T    .
+/
+/
+/
+ 001T 'nb heures'
+ 012T SIGNE-S  (AD=MILT ) /*.99D001 A001 .
+ 014T TOT  (AD=MILT ) /*.99D008 T    .
+/
+ 023T JOUR-P (001)  (AD=OIL ) /*.01D003 A003 .
+   /* A1000040000100001000010000100001100001004000013H
+ 039T JOUR-P (002)  (AD=OIL ) /*.01D003 A003 .
+ 055T JOUR-P (003)  (AD=OIL ) /*.01D003 A003 .
+ 071T JOUR-P (004)  (AD=OIL ) /*.01D003 A003 .
+/
+ 001T 'Previsions solde'
+ 019T SIGNE-P (001)  (AD=OIL ) /*.01D001 A001 .
+   /* A1000040000100001000010000100001100001004000015H
+ 021T PREVISION (001)  (AD=OIL ) /*.01D008 T    .
+   /* A1000040000100001000010000100001100001004000008H
+ 035T SIGNE-P (002)  (AD=OIL ) /*.01D001 A001 .
+ 037T PREVISION (002)  (AD=OIL ) /*.01D008 T    .
+ 051T SIGNE-P (003)  (AD=OIL ) /*.01D001 A001 .
+ 053T PREVISION (003)  (AD=OIL ) /*.01D008 T    .
+ 067T SIGNE-P (004)  (AD=OIL ) /*.01D001 A001 .
+ 069T PREVISION (004)  (AD=OIL ) /*.01D008 T    .
+* MAP2: VALIDATION *****************************************************
+* MAP2: END OF MAP *****************************************************
+END

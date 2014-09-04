@@ -1,0 +1,171 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+DEFINE DATA
+GLOBAL USING BEBA-G
+LOCAL
+1 TAB (A3/1:5)
+1 TAB2 (A3/1:5)
+1 IND (N2)
+1 I   (P2)
+1 J   (N2)
+1 FIN (A1)
+END-DEFINE
+*
+SET KEY ALL
+*
+MOVE 'lun' TO TAB(1)
+MOVE 'Lun' TO TAB2(1)
+MOVE 'mar' TO TAB(2)
+MOVE 'Mar' TO TAB2(2)
+MOVE 'mer' TO TAB(3)
+MOVE 'Mer' TO TAB2(3)
+MOVE 'jeu' TO TAB(4)
+MOVE 'Jeu' TO TAB2(4)
+MOVE 'ven' TO TAB(5)
+MOVE 'Ven' TO TAB2(5)
+MOVE EDITED *DATX (EM=NNN) TO JOUR
+EXAMINE TAB(*) FOR JOUR GIVING INDEX IND
+MOVE TAB(IND) TO JOUR
+*
+MOVE T'07:48:00' TO NORMAL
+MOVE T'08:45:00' TO H-AM-1
+MOVE T'12:20:00' TO H-AM-2
+MOVE T'13:20:00' TO H-PM-1
+MOVE T'18:00:00' TO H-PM-2
+MOVE T'07:48:00' TO CUM-SOU
+MOVE T'00:30:00' TO TOT
+MOVE '+'         TO SIGNE-1 SIGNE-2 SIGNE-3 SIGNE-S
+*
+REPEAT
+*
+  INPUT USING MAP 'BEBA-M'
+*
+  IF *PF-KEY = 'PF5'
+    RESET H-PM-2 CUM-PM
+    COMPUTE CUM-PM = CUM-SOU - CUM-AM
+    COMPUTE H-PM-2 = H-PM-1 + CUM-PM
+  ELSE
+    DECIDE FOR FIRST CONDITION
+      WHEN H-AM-1 NE 0 AND H-AM-2 NE 0
+        COMPUTE CUM-AM = H-AM-2 - H-AM-1
+*
+      WHEN H-AM-1 NE 0 AND CUM-AM NE 0
+        COMPUTE H-AM-2 = H-AM-1 + CUM-AM
+*
+      WHEN H-AM-2 NE 0 AND CUM-AM NE 0
+        COMPUTE H-AM-1 = H-AM-2 + CUM-AM
+*
+      WHEN NONE
+        IGNORE
+    END-DECIDE
+*
+    DECIDE FOR FIRST CONDITION
+      WHEN H-PM-1 NE 0 AND H-PM-2 NE 0
+        COMPUTE CUM-PM = H-PM-2 - H-PM-1
+*
+      WHEN H-PM-1 NE 0 AND CUM-PM NE 0
+        COMPUTE H-PM-2 = H-PM-1 + CUM-PM
+*
+      WHEN H-PM-2 NE 0 AND CUM-PM NE 0
+        COMPUTE H-PM-1 = H-PM-2 + CUM-PM
+      WHEN NONE
+        IGNORE
+    END-DECIDE
+  END-IF
+*
+  IF H-PM-1 NE 0 AND  H-AM-2 NE 0
+    COMPUTE PAUSE   = H-PM-1  - H-AM-2
+  END-IF
+  COMPUTE CUM-TOT = CUM-AM + CUM-PM - GARAGE
+  IF CUM-TOT > NORMAL
+    COMPUTE CUM-INT = CUM-TOT - NORMAL
+    MOVE '+' TO SIGNE-2
+    IF SIGNE-1 EQ '+'
+      MOVE '+' TO SIGNE-3
+      COMPUTE SOLDE-N = CUM-INT + SOLDE-A
+    ELSE
+      IF CUM-INT > SOLDE-A
+        MOVE '+' TO SIGNE-3
+        COMPUTE SOLDE-N = CUM-INT - SOLDE-A
+      ELSE
+        MOVE '-' TO SIGNE-3
+        COMPUTE SOLDE-N = SOLDE-A - CUM-INT
+      END-IF
+    END-IF
+  ELSE
+    COMPUTE CUM-INT = NORMAL - CUM-TOT
+    MOVE '-' TO SIGNE-2
+    IF SIGNE-1 EQ '-'
+      MOVE '-' TO SIGNE-3
+      COMPUTE SOLDE-N = CUM-INT + SOLDE-A
+    ELSE
+      IF CUM-INT > SOLDE-A
+        MOVE '-' TO SIGNE-3
+        COMPUTE SOLDE-N = CUM-INT - SOLDE-A
+      ELSE
+        MOVE '+' TO SIGNE-3
+        COMPUTE SOLDE-N = SOLDE-A - CUM-INT
+      END-IF
+    END-IF
+  END-IF
+*
+  IF SIGNE-S = '+'
+    FOR I 1 4
+      IF I GE IND
+        MOVE TAB2(I) TO JOUR-P(I)
+        IF I EQ IND
+          MOVE SIGNE-3 TO SIGNE-P(IND)
+          MOVE SOLDE-N TO PREVISION(IND)
+        ELSE
+          COMPUTE J = I - 1
+          IF SIGNE-P(J) = '+'
+            COMPUTE PREVISION(I) = TOT + PREVISION(J)
+            MOVE '+' TO SIGNE-P(I)
+          ELSE
+            IF PREVISION(J) > TOT
+              COMPUTE PREVISION(I) = PREVISION(J) - TOT
+              MOVE '-' TO SIGNE-P(I)
+            ELSE
+              COMPUTE PREVISION(I) = TOT - PREVISION(J)
+              MOVE '+' TO SIGNE-P(I)
+            END-IF
+          END-IF
+        END-IF
+      END-IF
+    END-FOR
+  ELSE
+    FOR I 1 4
+      IF I GE IND
+        MOVE TAB2(I) TO JOUR-P(I)
+        IF I EQ IND
+          MOVE SIGNE-3 TO SIGNE-P(IND)
+          MOVE SOLDE-N TO PREVISION(IND)
+        ELSE
+          COMPUTE J = I - 1
+          IF SIGNE-P(J) = '-'
+            COMPUTE PREVISION(I) = TOT + PREVISION(J)
+            MOVE '-' TO SIGNE-P(I)
+          ELSE
+            IF PREVISION(J) > TOT
+              COMPUTE PREVISION(I) = PREVISION(J) - TOT
+              MOVE '+' TO SIGNE-P(I)
+            ELSE
+              COMPUTE PREVISION(I) = TOT - PREVISION(J)
+              MOVE '-' TO SIGNE-P(I)
+            END-IF
+          END-IF
+        END-IF
+      END-IF
+    END-FOR
+  END-IF
+*
+  UNTIL *PF-KEY = 'PF3'
+*
+END-REPEAT
+STACK TOP COMMAND 'RET'
+*
+*
+END

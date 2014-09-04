@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>sonar.cobol</groupId>
+  <artifactId>chapter-cics</artifactId>
+  <version>1.0</version>
+  <packaging>pom</packaging>
+  <name>Cobol Sample Project</name>
+  <build>
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+  </build> 
+  <properties>
+    <sonar.language>cobol</sonar.language>
+    <sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
+    <sonar.cobol.copy.directories>copybooks,src/Chapter 2,src/Chapter 5,src/Chapter 7,src/Chapter 8,
+    		src/Chapter 9,src/Chapter 11,src/Chapter 12,src/Chapter 13,src/Chapter 14,src/Chapter 15,
+    		src/Chapter 17,src/Chapter 20
+    </sonar.cobol.copy.directories>
+		<sonar.cobol.file.suffixes>cbl</sonar.cobol.file.suffixes>
+		<sonar.cobol.copy.suffixes>cpy</sonar.cobol.copy.suffixes>
+  </properties>
+</project>

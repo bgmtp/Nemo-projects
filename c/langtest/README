@@ -1,0 +1,32 @@
+LANGTEST
+========
+(c) Paul Griffiths, 1999
+Email: mail@paulgriffiths.net
+
+
+Function
+========
+
+Helps you learn a foreign language by testing your
+ability to translate a list of phrases specified in
+an external datafile.
+
+
+Usage
+=====
+
+Examples of usage:
+
+    [paul@localhost paul]$ ./langtest testdata.dat	
+    [paul@localhost paul]$ ./langtest testdata1.dat testdata2.dat
+
+
+Installation
+============
+
+If your system supports make, simply type:
+
+    make
+
+at the command line. Otherwise, compile and link langtest.c and
+list.c in the usual way to create the executable. 

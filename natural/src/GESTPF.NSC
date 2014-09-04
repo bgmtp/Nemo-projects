@@ -1,0 +1,107 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+* --------------------------------
+* GESTION DES TOUCHES DE FONCTIONS
+* --------------------------------
+*
+DEFINE SUBROUTINE GESTPF
+*
+RESET TOUCHE
+IF COMMANDE NE ' '
+  STACK TOP COMMAND COMMANDE
+  STOP
+END-IF
+*
+DECIDE ON FIRST VALUE OF *PF-KEY
+*
+  VALUE 'PF1'
+*
+    SET CONTROL 'WL25C15B4/33F'
+    INPUT USING MAP 'ECP-MH'
+    SET CONTROL 'WB'
+*
+  VALUE 'PF3'
+*
+    SET CONTROL 'WL33C05B8/20F'
+    MOVE 'O' TO IN-ENREG
+    INPUT (AD=MI) / 'VOULEZ-VOUS ENREGISTRER :' IN-ENREG
+    IF IN-ENREG = 'O' END TRANSACTION END-IF
+    SET CONTROL 'WB'
+    STOP
+*
+  VALUE 'PF6'
+*
+    SET CONTROL 'WL20C06B8/20F'
+    MOVE NO-SOC TO L-SOC
+    INPUT (AD=MI'_') L-SOC / L-PROD / L-OBJ
+    IF L-PROD = ' '
+      IF L-OBJ = ' ' MOVE 'FIN' TO L-OBJ
+      ELSE MOVE L-OBJ TO L-PROD END-IF
+    END-IF
+    IF L-OBJ NE 'FIN'
+      SET CONTROL 'WL30C20B1/48F'
+      REPEAT UNTIL *PF-KEY = 'PF3'
+        MOVE L-SOC TO L-DE-SOC
+        MOVE L-PROD TO L-DE-PROD
+        READ (14) L-CONT WITH DE-SOC-PROD-RANG = L-DE
+          IF (  L-CONT.CD-OBJ-ASSU(*) = L-OBJ AND L-OBJ NE ' ' ) OR
+              ( L-CONT.CD-PROD-ASSU   = L-PROD AND L-OBJ = ' ' )
+            WRITE '=' L-CONT.NO-SOC
+          END-IF
+        END-READ
+        MOVE L-CONT.NO-SOC TO L-SOC
+        INPUT 'ENCORE = ENTER, FIN = PF3'
+      END-REPEAT
+    END-IF
+    SET CONTROL 'WB'
+*
+  VALUE 'PF7'
+*
+    MOVE 'PF7' TO TOUCHE
+*
+  VALUE 'PF8'
+*
+    MOVE 'PF8' TO TOUCHE
+*
+  VALUE 'PF10'
+*
+    REPEAT UNTIL *PF-KEY = 'PF3'
+*
+      INPUT USING MAP 'ECP-MC' NO ERASE
+*
+      DECIDE ON FIRST VALUE OF *PF-KEY
+        VALUE 'PF12'
+          COMPUTE RES = NB1 / NB2
+        VALUE 'PF11'
+          COMPUTE RES = NB1 * NB2
+        VALUE 'PF10'
+          COMPUTE RES = NB1 - NB2
+        VALUE 'PF9'
+          COMPUTE RES = NB1 + NB2
+        NONE
+          IGNORE
+      END-DECIDE
+*
+    END-REPEAT
+*
+  VALUE 'PF11'
+*
+*
+    REPEAT UNTIL *PF-KEY = 'PF3'
+*
+      INPUT USING MAP 'ECP-MD' NO ERASE
+*
+    END-REPEAT
+*
+  VALUE 'PF12'
+*
+    IF IN-HISTO = 'N' MOVE 'O' TO IN-HISTO
+    ELSE MOVE 'N' TO IN-HISTO END-IF
+*
+  NONE IGNORE
+END-DECIDE
+*
+END-SUBROUTINE

@@ -1,0 +1,47 @@
+# testdata.dat
+#
+# Sample LANGTEST data file
+#
+# These lines are comments
+
+# The first two uncommented lines signify the
+# two languages we will be translating. They
+# should be in the same order as the pairs of
+# phrases which follow
+
+Japanese
+English
+
+
+# Now that we have specified our languages, 
+# we can list the pairs of phrases in the
+# order specified above. Blank lines are
+# ignored by LANGTEST, so we can use them or
+# omit them as we please.
+
+O-hayo gozaimasu
+Good morning
+
+Konnichi wa
+Hello
+
+Konban wa
+Good evening
+
+O-yasumi nasai
+Good night
+
+Hajimemashite
+Pleased to meet you
+
+Sayonara
+Goodbye
+
+O-namae wa nan to osshaimasu ka
+What is your name?
+
+Tanaka to moshimasu
+My name is Tanaka
+
+Sumimasen
+Excuse me

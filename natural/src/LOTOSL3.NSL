@@ -1,0 +1,101 @@
+DEFINE DATA LOCAL
+/* >Natural Source Header 000000
+/* :Mode S
+/* :CP
+/* <Natural Source Header
+/* **
+/* ** Pour lecture document
+/* **
+ 1 £ZGET11B
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 TB-DESCR (A60/1:4)
+   2 CD-DOC-FORMAT (A1)
+   2 CD-TYPE-TXT (A1)
+   2 NO-TYPE-TXT-TOT (P3)
+   2 NO-TYPE-TXT-COURANT (P3)
+   2 TB-TXT (A251/20)
+   2 REDEFINE TB-TXT
+     3 TB-TXT-RE (20)
+       4 ZN-CARACT-CONTR (A1)
+       4 FILLER 5X
+       4 ZN-CARACT-TXT-EQUIPE-1 (A12)
+       4 REDEFINE ZN-CARACT-TXT-EQUIPE-1
+         5 ZN-CARACT-TXT-EQUIPE-111 (A11)
+       4 FILLER 5X
+       4 ZN-CARACT-TXT-EQUIPE-2 (A12)
+       4 REDEFINE ZN-CARACT-TXT-EQUIPE-2
+         5 ZN-CARACT-TXT-EQUIPE-211 (A11)
+       4 FILLER 34X
+       4 ZN-CARACT-TXT-1 (A1)
+       4 FILLER 2X
+       4 ZN-CARACT-TXT-N (A1)
+       4 FILLER 2X
+       4 ZN-CARACT-TXT-2 (A1)
+       4 FILLER 175X
+   2 ZN-TRAV (A240)
+   2 ZN-TRAV-2 (A79)
+/* **
+/* ** Pour écriture document
+/* **
+ 1 £ZADD11A
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 TB-DESCR (A60/1:4)
+   2 TB-MOT-CLE (A15/1:6)
+   2 CD-DOC-FORMAT (A1)
+   2 TB-TXT (A251/20)
+   2 REDEFINE TB-TXT
+     3 TB-TXT-RE (20)
+       4 ZN-CARACT-CONTR (A1)
+       4 ZN-LIGNE (A77)
+       4 FILLER 173X
+   2 NO-ISN (P8)
+   2 ZN-TRAV (A21)
+/* **
+/* ** Zones de la map
+/* **
+ 1 SEL-1 (A1/1:13)
+ 1 SEL-N (A1/1:13)
+ 1 SEL-2 (A1/1:13)
+ 1 CHOIX-1 (A1)
+ 1 CHOIX-2 (N2)
+ 1 OPT (A1)
+ 1 NO-GRILLE (N2)
+ 1 REDEFINE NO-GRILLE
+   2 NO-GRILLE-A (A2)
+ 1 RESULT (A1/1:13)
+ 1 BILAN (N2/1:14)
+ 1 NB-GOOD (N2)
+/* **
+/* **
+/* ** Pour Copie du Document
+/* **
+ 1 £COPY
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 NM-BURO-NEW (A8)
+   2 NM-DOC-NEW (A32)
+   2 NM-CASIER-NEW (A15)
+   2 NM-CLASSEUR-NEW (A15)
+   2 TB-DESCR (A60/1:4)
+   2 FLAG (A1)
+/* **
+/* ** Pour Suppression du Document
+/* **
+ 1 £SUPP
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 FLAG (A1)
+END-DEFINE

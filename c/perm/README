@@ -1,0 +1,37 @@
+PERM
+====
+(c) Copyright Paul Griffiths 2000
+Email: mail@paulgriffiths.net
+
+Calculates all possible permutations of a set of 'n' items.
+
+This program uses a recursive algorithm. Two versions are supplied, one
+where the data and stack are represented using arrays, and another where
+they are represented using linked lists.
+
+
+USAGE
+=====
+
+Type:
+
+    ./perm 4
+
+where the single argument is the number of items in the set (must be
+between 1 and 26 inclusive).
+
+
+COMPILATION
+===========
+
+Type one of the following:
+
+    make
+    make array
+    make list
+
+to build the appropriate version (array is the default). Both targets make
+an executable called "perm".
+
+You may need to edit/rename the makefile according to your environment's
+requirements.

@@ -1,0 +1,52 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* <Natural Source Header
+* MAP2: PROTOTYPE
+* INPUT USING MAP 'XXXXXXXX'
+*     CHOIX(*)
+DEFINE DATA PARAMETER
+1 CHOIX (A001/00001:00006)
+END-DEFINE
+FORMAT PS=012 LS=041 ZP=OFF SG=OFF KD=OFF IP=OFF
+* MAP2: MAP PROFILES *****************************        200***********
+* ,TTAAAMMOO   D I D I N D I D I        ?_)^&:+(                       *
+* 012040        N0NNUCN             X        01 SYSPROF NL             *
+************************************************************************
+INPUT          (     IP=OFF                                           /*
+                                                                       )
+ 006T 'Le'
+ 009T *DATX  (AD=OI EM=DD^LLLLLLLLLL^YY ) /*.01S016 D    .
+ 026T 'à'
+ 028T *TIMX  (AD=OIL EM=HH:II:SS ) /*.01S008 T    .
+/
+/
+ 011T 'CHOIX DU TRAITEMENT'
+/
+ 013T 'du'
+ 016T 'LOTO SPORTIF'(I)
+/
+ 013T '-=-=-=-=-=-=-=-'
+/
+/
+ 006T CHOIX (001)  (AD=MILT'_' ) /*.99D001 A001 .
+   /**A1000060000100001000010000100001100006001001000001000HV
+ 008T ': Pronostics pour la Grille'
+/
+ 006T CHOIX (002)  (AD=MILT'_' ) /*.99D001 A001 .
+ 008T ': Calcul de la Grille commune'
+/
+ 006T CHOIX (003)  (AD=MILT'_' ) /*.99D001 A001 .
+ 008T ': Génération Grille multiple'
+/
+ 006T CHOIX (004)  (AD=MILT'_' ) /*.99D001 A001 .
+ 008T ': Génération des 24 Grilles'
+/
+ 006T CHOIX (005)  (AD=MILT'_' ) /*.99D001 A001 .
+ 008T ': Mise à jour des Stats'
+/
+ 006T CHOIX (006)  (AD=MILT'_' ) /*.99D001 A001 .
+ 008T ': Fin (retour vers CONNECT)'
+* MAP2: VALIDATION *****************************************************
+* MAP2: END OF MAP *****************************************************
+END

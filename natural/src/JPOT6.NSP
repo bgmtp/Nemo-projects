@@ -1,0 +1,233 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+DEFINE DATA
+GLOBAL USING JPOT-G
+LOCAL
+1 £ZONE    (N16)
+1 REDEFINE £ZONE
+  2 FIL      (N11)
+  2 AL       (N2)
+  2 FIL1     (N3)
+1 PREMIERE (A1) INIT<'O'>
+1 £II      (N6)
+1 £HEUR    (N7)
+1 ROUL  (A5/1:5)
+1 A     (A5)
+1 B     (A5)
+1 C     (A5)
+1 MES  (A10/1:6)
+1 I (I2)
+1 J (I2)
+1 K (I2)
+1 P (I2)
+1 £TI (N7)
+END-DEFINE
+*
+SET KEY ALL
+*
+*
+RESET RESULTAT GAIN MISE
+INPUT (AD=M) 'HEURE =' £TI
+PERFORM INIT-MESSAGES
+PERFORM INIT-ROULEAU
+*
+INPUT USING MAP 'JPOT-M'
+REPEAT
+  RESET TOT(*) TOT1(*) GAIN MISE PAS(*) K
+  ADD 1 TO NB
+  FOR P = 1 TO NB-C
+*
+    FOR I = 1 TO 6
+      PERFORM TOURNE-ROULEAU
+      MOVE MES(I) TO RESULTAT
+    END-FOR
+    ADD  1 TO MISE
+    PERFORM VERIF-RESULT
+    PERFORM POURCENT
+*
+  END-FOR
+  INPUT USING MAP 'JPOT-M'
+*
+  UNTIL *PF-KEY = 'PF3'
+END-REPEAT
+*
+STACK TOP COMMAND 'RET'
+*
+*
+* ============================
+*
+*         SUBROUTINES
+*
+* ============================
+*
+*
+* -----------------------
+* INITIALISE LES MESSAGES
+* -----------------------
+*
+DEFINE SUBROUTINE INIT-MESSAGES
+*
+MOVE '**********' TO MES(1)
+MOVE '****  ****' TO MES(2)
+MOVE '***    ***' TO MES(3)
+MOVE '**      **' TO MES(4)
+MOVE '***    ***' TO MES(5)
+MOVE '****  ****' TO MES(6)
+*
+END-SUBROUTINE
+*
+*
+* -----------------------
+* INITIALISE LES ROULEAUX
+* -----------------------
+*
+DEFINE SUBROUTINE INIT-ROULEAU
+*
+MOVE '*****' TO ROUL(1) ROULEAU(*,*)
+MOVE '*BAR*' TO ROUL(2)
+MOVE 'JOKER' TO ROUL(3)
+MOVE '$$$$$' TO ROUL(4)
+MOVE '*777*' TO ROUL(5)
+*
+END-SUBROUTINE
+*
+*
+* -------------------
+* TOURNE LES ROULEAUX
+* -------------------
+*
+DEFINE SUBROUTINE TOURNE-ROULEAU
+*
+MOVE ROULEAU(2,*) TO ROULEAU(3,*)
+MOVE ROULEAU(1,*) TO ROULEAU(2,*)
+FOR J = 1 TO 3
+  PERFORM GENE-NB-ALEAT
+  MOVE ROUL(AL) TO ROULEAU(1,J)
+END-FOR
+*
+END-SUBROUTINE
+*
+*
+* ----------------------
+* VERIFIE LA COMBINAISON
+* ----------------------
+*
+DEFINE SUBROUTINE VERIF-RESULT
+*
+MOVE ROULEAU(2,1) TO A
+MOVE ROULEAU(2,2) TO B
+MOVE ROULEAU(2,3) TO C
+*
+*
+IF A = B AND B = C AND A = '*777*'
+  MOVE '1.000.000F' TO RESULTAT
+  ADD   1000000     TO GAIN
+  ADD   1           TO TOT(1)
+  IF K LT 19
+    ADD   1           TO K
+    MOVE MISE         TO PAS(K)
+  END-IF
+  ESCAPE ROUTINE
+END-IF
+*
+IF A = '*****' OR B = '*****' OR C = '*****'
+  MOVE '>>> 0F <<<' TO RESULTAT
+  ADD 0 TO GAIN
+  ADD 1 TO TOT(8)
+  ESCAPE ROUTINE
+END-IF
+*
+IF A = B AND B = C
+  MOVE ' 10.000 F ' TO RESULTAT
+  ADD   10000       TO GAIN
+  ADD   1           TO TOT(2)
+  ESCAPE ROUTINE
+END-IF
+*
+IF (     A = B AND A = 'JOKER' )
+    OR ( B = C AND B = 'JOKER' )
+    OR ( A = C AND A = 'JOKER' )
+  MOVE '   10 F   ' TO RESULTAT
+  ADD   10          TO GAIN
+  ADD   1           TO TOT(6)
+  ESCAPE ROUTINE
+END-IF
+*
+IF (     A = B AND A = '*BAR*' )
+    OR ( B = C AND B = '*BAR*' )
+    OR ( A = C AND A = '*BAR*' )
+  MOVE '   25 F   ' TO RESULTAT
+  ADD   25          TO GAIN
+  ADD   1           TO TOT(5)
+  ESCAPE ROUTINE
+END-IF
+*
+IF (     A = B AND A = '$$$$$' )
+    OR ( B = C AND B = '$$$$$' )
+    OR ( A = C AND A = '$$$$$' )
+  MOVE '   50 F   ' TO RESULTAT
+  ADD   50          TO GAIN
+  ADD   1           TO TOT(4)
+  ESCAPE ROUTINE
+END-IF
+*
+IF (     A = B AND A = '*777*' )
+    OR ( B = C AND B = '*777*' )
+    OR ( A = C AND A = '*777*' )
+  MOVE '   75 F   ' TO RESULTAT
+  ADD   75          TO GAIN
+  ADD   1           TO TOT(3)
+  ESCAPE ROUTINE
+END-IF
+*
+MOVE '--- 1F ---' TO RESULTAT
+ADD  1 TO GAIN
+ADD   1 TO TOT(7)
+*
+END-SUBROUTINE
+*
+*
+* ----------------------------------------
+* GéNèRE UN NOMBRE ALéATOIRE ENTRE 1 ET 49
+* ----------------------------------------
+*
+DEFINE SUBROUTINE GENE-NB-ALEAT
+*
+IF PREMIERE = 'O'
+  MOVE *DATN TO £ZONE
+  MOVE £TI   TO £HEUR
+  COMPUTE £ZONE = £ZONE * £HEUR
+  MOVE 'N' TO PREMIERE
+END-IF
+REPEAT
+  IF £ZONE LT 100000000000
+    COMPUTE £ZONE = £ZONE * 79
+  END-IF
+  IF £II = (£II / 2) * 2
+    COMPUTE £ZONE = (£ZONE / 8) * 7
+  ELSE
+    COMPUTE £ZONE = (£ZONE / 7) * 8
+  END-IF
+  UNTIL (AL LE 4)
+END-REPEAT
+ADD 1 TO AL
+*
+END-SUBROUTINE
+*
+DEFINE SUBROUTINE POURCENT
+*
+COMPUTE TOT1(1) = ( 100 * TOT(1) ) / MISE
+COMPUTE TOT1(2) = ( 100 * TOT(2) ) / MISE
+COMPUTE TOT1(3) = ( 100 * TOT(3) ) / MISE
+COMPUTE TOT1(4) = ( 100 * TOT(4) ) / MISE
+COMPUTE TOT1(5) = ( 100 * TOT(5) ) / MISE
+COMPUTE TOT1(6) = ( 100 * TOT(6) ) / MISE
+COMPUTE TOT1(7) = ( 100 * TOT(7) ) / MISE
+COMPUTE TOT1(8) = ( 100 * TOT(8) ) / MISE
+*
+END-SUBROUTINE
+*
+END

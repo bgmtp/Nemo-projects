@@ -1,0 +1,223 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+* Programme établissant les stats individuelles
+*
+DEFINE DATA
+LOCAL USING LOTO-SL5
+LOCAL
+1 I (P2)
+1 J (P2)
+1 IND (P2)
+1 QUI (A2)
+1 PRON (A1/4:16)
+1 RESUL (A1/4:16)
+1 BON (N2)
+1 MOY (N2,2)
+END-DEFINE
+*
+INPUT (AD=MI'_') 'Qui ?' QUI '(Mettre "__" pour sortir)'
+IF QUI = ' ' ESCAPE ROUTINE END-IF
+IF NOT(QUI ='CB' OR ='DH' OR ='GK' OR = 'YM' OR = 'PR' OR = 'GB')
+  REINPUT 'Essaye encore !'
+END-IF
+*
+* Récup du document 'Stat'
+*
+£STAT.NM-BURO := 'H16007'
+COMPRESS 'Stat-' QUI INTO £STAT.NM-DOC LEAVING NO
+*
+I := 0
+REPEAT
+  CALLNAT 'Z-GET11B' £STAT
+  FOR J = 1 TO 20
+    ADD 1 TO I
+    ZN-TEMP (I) := £STAT.TB-TXT (J)
+  END-FOR
+  UNTIL £STAT.CD-RETOUR = 77
+END-REPEAT
+*
+* Récup des pronos
+*
+£GRILLE.NM-BURO := 'H16007'
+£GRILLE.NM-DOC  := 'Grille-commune'
+*
+REPEAT
+  CALLNAT 'Z-GET11B' £GRILLE
+  FOR I = 4 TO 16
+    DECIDE ON FIRST VALUE OF QUI
+      VALUE 'CB'
+        PRON (I) := CB (I)
+      VALUE 'DH'
+        PRON (I) := DH (I)
+      VALUE 'GK'
+        PRON (I) := GK (I)
+      VALUE 'YM'
+        PRON (I) := YM (I)
+      VALUE 'PR'
+        PRON (I) := PR (I)
+      VALUE 'GB'
+        PRON (I) := GB (I)
+      NONE VALUE IGNORE
+    END-DECIDE
+    RESUL (I) := RES (I)
+  END-FOR
+  UNTIL £GRILLE.CD-RETOUR = 77
+END-REPEAT
+*
+* Calcul de la nouvelle moyenne
+*
+RESET BON
+FOR I = 4 TO 16
+  IF PRON (I) = RES (I) OR RES (I) = 'G'
+    BON := BON + 1
+  END-IF
+END-FOR
+WRITE 'Résultat de' QUI ':' BON 'bons'
+ZN-TAMPON.NB-PRO (1) := ZN-TAMPON.NB-PRO (1) + 1
+ZN-TAMPON.NB-BON (1) := ZN-TAMPON.NB-BON (1) + BON
+MOY := ZN-TAMPON.NB-BON (1) / ZN-TAMPON.NB-PRO (1)
+MOVE EDITED MOY (EM=99,99) TO ZN-TAMPON.MOY-A (1)
+WRITE 'Moyenne de' QUI ':' MOY
+*
+* Recalcul du tableau par équipe
+*
+FOR I = 4 TO 16
+  DECIDE FOR EVERY CONDITION
+    WHEN ZN-TAMPON.EQUIPE1 (*) = £GRILLE.EQUIPE-1-A9 (I)
+      EXAMINE ZN-TAMPON.EQUIPE1 (*) FOR £GRILLE.EQUIPE-1-A9 (I)
+        GIVING INDEX IND
+      ZN-TAMPON.NB-FOIS1 (IND) := ZN-TAMPON.NB-FOIS1 (IND) + 1
+      DECIDE ON FIRST VALUE OF RESUL (I)
+        VALUE '1'
+          IF PRON (I) = '1'
+            ZN-TAMPON.NB-VICD1 (IND) := ZN-TAMPON.NB-VICD1 (IND) + 1
+          END-IF
+        VALUE 'N'
+          IF PRON (I) = 'N'
+            ZN-TAMPON.NB-NULD1 (IND) := ZN-TAMPON.NB-NULD1 (IND) + 1
+          END-IF
+        VALUE '2'
+          IF PRON (I) = '2'
+            ZN-TAMPON.NB-DEFD1 (IND) := ZN-TAMPON.NB-DEFD1 (IND) + 1
+          END-IF
+        VALUE 'G'
+          ZN-TAMPON.NB-FOIS1 (IND) := ZN-TAMPON.NB-FOIS1 (IND) - 1
+        NONE VALUE IGNORE
+      END-DECIDE
+    WHEN ZN-TAMPON.EQUIPE1 (*) = £GRILLE.EQUIPE-2-A9 (I)
+      EXAMINE ZN-TAMPON.EQUIPE1 (*) FOR £GRILLE.EQUIPE-2-A9 (I)
+        GIVING INDEX IND
+      ZN-TAMPON.NB-FOIS1 (IND) := ZN-TAMPON.NB-FOIS1 (IND) + 1
+      DECIDE ON FIRST VALUE OF RESUL (I)
+        VALUE '1'
+          IF PRON (I) = '1'
+            ZN-TAMPON.NB-DEFE1 (IND) := ZN-TAMPON.NB-DEFE1 (IND) + 1
+          END-IF
+        VALUE 'N'
+          IF PRON (I) = 'N'
+            ZN-TAMPON.NB-NULE1 (IND) := ZN-TAMPON.NB-NULE1 (IND) + 1
+          END-IF
+        VALUE '2'
+          IF PRON (I) = '2'
+            ZN-TAMPON.NB-VICE1 (IND) := ZN-TAMPON.NB-VICE1 (IND) + 1
+          END-IF
+        VALUE 'G'
+          ZN-TAMPON.NB-FOIS1 (IND) := ZN-TAMPON.NB-FOIS1 (IND) - 1
+        NONE VALUE IGNORE
+      END-DECIDE
+    WHEN ZN-TAMPON.EQUIPE2 (*) = £GRILLE.EQUIPE-1-A9 (I)
+      EXAMINE ZN-TAMPON.EQUIPE2 (*) FOR £GRILLE.EQUIPE-1-A9 (I)
+        GIVING INDEX IND
+      ZN-TAMPON.NB-FOIS2 (IND) := ZN-TAMPON.NB-FOIS2 (IND) + 1
+      DECIDE ON FIRST VALUE OF RESUL (I)
+        VALUE '1'
+          IF PRON (I) = '1'
+            ZN-TAMPON.NB-VICD2 (IND) := ZN-TAMPON.NB-VICD2 (IND) + 1
+          END-IF
+        VALUE 'N'
+          IF PRON (I) = 'N'
+            ZN-TAMPON.NB-NULD2 (IND) := ZN-TAMPON.NB-NULD2 (IND) + 1
+          END-IF
+        VALUE '2'
+          IF PRON (I) = '2'
+            ZN-TAMPON.NB-DEFD2 (IND) := ZN-TAMPON.NB-DEFD2 (IND) + 1
+          END-IF
+        VALUE 'G'
+          ZN-TAMPON.NB-FOIS2 (IND) := ZN-TAMPON.NB-FOIS2 (IND) - 1
+        NONE VALUE IGNORE
+      END-DECIDE
+    WHEN ZN-TAMPON.EQUIPE2 (*) = £GRILLE.EQUIPE-2-A9 (I)
+      EXAMINE ZN-TAMPON.EQUIPE2 (*) FOR £GRILLE.EQUIPE-2-A9 (I)
+        GIVING INDEX IND
+      ZN-TAMPON.NB-FOIS2 (IND) := ZN-TAMPON.NB-FOIS2 (IND) + 1
+      DECIDE ON FIRST VALUE OF RESUL (I)
+        VALUE '1'
+          IF PRON (I) = '1'
+            ZN-TAMPON.NB-DEFE2 (IND) := ZN-TAMPON.NB-DEFE2 (IND) + 1
+          END-IF
+        VALUE 'N'
+          IF PRON (I) = 'N'
+            ZN-TAMPON.NB-NULE2 (IND) := ZN-TAMPON.NB-NULE2 (IND) + 1
+          END-IF
+        VALUE '2'
+          IF PRON (I) = '2'
+            ZN-TAMPON.NB-VICE2 (IND) := ZN-TAMPON.NB-VICE2 (IND) + 1
+          END-IF
+        VALUE 'G'
+          ZN-TAMPON.NB-FOIS2 (IND) := ZN-TAMPON.NB-FOIS2 (IND) - 1
+        NONE VALUE IGNORE
+      END-DECIDE
+    WHEN NONE IGNORE
+  END-DECIDE
+END-FOR
+*
+* Suppression du document 'Stat'
+*
+£SUPP.NM-BURO := 'H16007'
+COMPRESS 'Stat-' QUI INTO £SUPP.NM-DOC LEAVING NO
+CALLNAT 'Z-ERA11' £SUPP
+*
+* Création du document dans CONNECT
+*
+£ZADD11A.NM-BURO:= 'H16007'
+£ZADD11A.NM-DOC := 'Toto'
+RESET I J
+REPEAT
+  UNTIL I = 60
+  ADD 1 TO I
+  ADD 1 TO J
+  £ZADD11A.ZN-LIGNE (J) := ZN-TEMP1 (I)
+  IF J = 20
+    CALLNAT 'Z-ADD11A' £ZADD11A
+    RESET J
+  END-IF
+END-REPEAT
+*
+IF £ZADD11A.CD-RETOUR NE 00
+  REINPUT 'Problème dans la génération du document CONNECT'
+ELSE
+*
+* Copie dans le casier FOOT
+*
+  COMPRESS 'Stat-' QUI INTO £COPY.NM-DOC-NEW LEAVING NO
+  £COPY.NM-BURO         := 'H16007'
+  £COPY.NM-DOC          := 'Toto'
+  £COPY.NM-BURO-NEW     := 'H16007'
+  £COPY.NM-CASIER-NEW   := 'Personnel'
+  £COPY.NM-CLASSEUR-NEW := 'loto'
+  CALLNAT 'Z-COP11' £COPY
+*
+* Suppression du document de travail 'Toto'
+*
+  £SUPP.NM-BURO := 'H16007'
+  £SUPP.NM-DOC  := 'Toto'
+  CALLNAT 'Z-ERA11' £SUPP
+  RESET QUI
+* REINPUT FULL 'Document modifié'
+  WRITE 'Document modifié'
+END-IF
+*
+END

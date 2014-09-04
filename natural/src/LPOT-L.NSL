@@ -1,0 +1,33 @@
+DEFINE DATA LOCAL
+/* >Natural Source Header 000000
+/* :Mode S
+/* :CP
+/* <Natural Source Header
+/* **
+/* ** DONNéE LOCALE
+/* **
+ 1 £NB-G (N1)
+ 1 £CPT (N3)
+ 1 £ZONE (N16)
+ 1 REDEFINE £ZONE /* REDEF. BEGIN : £ZONE
+   2 FIL (N11)
+   2 AL (N2)
+   2 FIL1 (N3)
+ 1 PREMIERE (A1) INIT<'O'>
+ 1 £II (N6)
+ 1 £HEUR (N7)
+ 1 ROUL (A5/1:5)
+ 1 A (A5)
+ 1 B (A5)
+ 1 C (A5)
+ 1 MESS (A10/1:6)
+ 1 LEVIER (A1/1:6,1:8)
+ 1 I (I2)
+ 1 J (I2)
+ 1 K (I2)
+ 1 P (I2)
+ 1 GAIN-2 (I1)
+ 1 £RESULT (N7)
+ 1 £SORTIE (N3)
+ 1 IN-MAJ (A1)
+END-DEFINE

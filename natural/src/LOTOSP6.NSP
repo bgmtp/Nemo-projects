@@ -1,0 +1,254 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+* Récup des pronos pour mettre dans grille commune
+*
+DEFINE DATA
+LOCAL USING LOTOSL6
+LOCAL
+1 I (P2)
+1 QUI (A2)
+1 PRON (A1/1:8,1:13)
+END-DEFINE
+*
+INPUT (AD=MI'_') 'Qui ?' QUI '(Mettre "__" pour sortir)'
+IF QUI = ' ' ESCAPE ROUTINE END-IF
+IF NOT(QUI ='MH' OR='MV' OR='ED' OR= 'MC' OR= 'MM' OR= 'SD' OR='PB'
+  OR='DT')
+  REINPUT 'Essaye encore !'
+END-IF
+*
+DEFINE WINDOW LOTO-WIN SIZE 5*23
+*
+£ZGET11B.NM-BURO := 'S10316'
+£ZGET11B.NM-DOC  := 'Grille-fille'
+*
+REPEAT
+  CALLNAT 'Z-GET11B' £ZGET11B
+  FOR I = 1 TO 13
+    IF NOT(£ZGET11B.TOT-1 (I+3) = '.')
+      MOVE EDITED £ZGET11B.TOT-1 (I+3) TO NB-1 (I) (EM=9)
+    ELSE
+      RESET NB-1 (I)
+    END-IF
+    IF £ZGET11B.TOT-N (I+3) NE '.'
+      MOVE EDITED £ZGET11B.TOT-N (I+3) TO NB-N (I) (EM=9)
+    ELSE
+      RESET NB-N (I)
+    END-IF
+    IF £ZGET11B.TOT-2 (I+3) NE '.'
+      MOVE EDITED £ZGET11B.TOT-2 (I+3) TO NB-2 (I) (EM=9)
+    ELSE
+      RESET NB-2 (I)
+    END-IF
+    PRON (1,I) := MH (I+3)
+    PRON (2,I) := MV (I+3)
+    PRON (3,I) := ED (I+3)
+    PRON (4,I) := MC (I+3)
+    PRON (5,I) := MM (I+3)
+    PRON (6,I) := SD (I+3)
+    PRON (7,I) := PB (I+3)
+    PRON (8,I) := DT (I+3)
+  END-FOR
+  £ZADD11A.TB-TXT (1:3) := £ZGET11B.TB-TXT (1:3)
+  UNTIL £ZGET11B.CD-RETOUR = 77
+END-REPEAT
+EXAMINE PRON (*,*) TRANSLATE INTO UPPER CASE
+*
+* Suppression du document 'Grille-commune'
+*
+£SUPP.NM-BURO := 'S10316'
+£SUPP.NM-DOC  := 'Grille-fille'
+CALLNAT 'Z-ERA11' £SUPP
+*
+RESET £ZGET11B
+£ZGET11B.NM-BURO := 'S10316'
+£ZGET11B.NM-DOC  := QUI
+*
+REPEAT
+  CALLNAT 'Z-GET11B' £ZGET11B
+  UNTIL £ZGET11B.CD-RETOUR = 77
+END-REPEAT
+*
+FOR I = 4 TO 16
+  DECIDE FOR FIRST CONDITION
+    WHEN QUI = 'MH'
+      IF MH (I) = '1'
+        ADD 1 TO NB-1 (I - 3)
+      ELSE
+        IF MH (I) = 'N'
+          ADD 1 TO NB-N (I - 3)
+        ELSE
+          ADD 1 TO NB-2 (I - 3)
+        END-IF
+      END-IF
+    WHEN QUI = 'MV'
+      IF MV (I) = '1'
+        ADD 1 TO NB-1 (I - 3)
+      ELSE
+        IF MV (I) = 'N'
+          ADD 1 TO NB-N (I - 3)
+        ELSE
+          ADD 1 TO NB-2 (I - 3)
+        END-IF
+      END-IF
+    WHEN QUI = 'ED'
+      IF ED (I) = '1'
+        ADD 1 TO NB-1 (I - 3)
+      ELSE
+        IF ED (I) = 'N'
+          ADD 1 TO NB-N (I - 3)
+        ELSE
+          ADD 1 TO NB-2 (I - 3)
+        END-IF
+      END-IF
+    WHEN QUI = 'MC'
+      IF MC (I) = '1'
+        ADD 1 TO NB-1 (I - 3)
+      ELSE
+        IF MC (I) = 'N'
+          ADD 1 TO NB-N (I - 3)
+        ELSE
+          ADD 1 TO NB-2 (I - 3)
+        END-IF
+      END-IF
+    WHEN QUI = 'MM'
+      IF MM (I) = '1'
+        ADD 1 TO NB-1 (I - 3)
+      ELSE
+        IF MM (I) = 'N'
+          ADD 1 TO NB-N (I - 3)
+        ELSE
+          ADD 1 TO NB-2 (I - 3)
+        END-IF
+      END-IF
+    WHEN QUI = 'SD'
+      IF SD (I) = '1'
+        ADD 1 TO NB-1 (I - 3)
+      ELSE
+        IF SD (I) = 'N'
+          ADD 1 TO NB-N (I - 3)
+        ELSE
+          ADD 1 TO NB-2 (I - 3)
+        END-IF
+      END-IF
+    WHEN QUI = 'PB'
+      IF PB (I) = '1'
+        ADD 1 TO NB-1 (I - 3)
+      ELSE
+        IF PB (I) = 'N'
+          ADD 1 TO NB-N (I - 3)
+        ELSE
+          ADD 1 TO NB-2 (I - 3)
+        END-IF
+      END-IF
+    WHEN QUI = 'DT'
+      IF DT (I) = '1'
+        ADD 1 TO NB-1 (I - 3)
+      ELSE
+        IF DT (I) = 'N'
+          ADD 1 TO NB-N (I - 3)
+        ELSE
+          ADD 1 TO NB-2 (I - 3)
+        END-IF
+      END-IF
+    WHEN NONE IGNORE
+  END-DECIDE
+END-FOR
+*
+FOR I = 1 TO 13
+  IF NB-1 (I) NE 0
+    £ZGET11B.TOT-1 (I+3) := NB-1 (I)
+  ELSE
+    £ZGET11B.TOT-1 (I+3) := '.'
+  END-IF
+  IF NB-N (I) NE 0
+    £ZGET11B.TOT-N (I+3) := NB-N (I)
+  ELSE
+    £ZGET11B.TOT-N (I+3) := '.'
+  END-IF
+  IF NB-2 (I) NE 0
+    £ZGET11B.TOT-2 (I+3) := NB-2 (I)
+  ELSE
+    £ZGET11B.TOT-2 (I+3) := '.'
+  END-IF
+  IF NOT (PRON (1,1) = '_' OR = ' ')
+    £ZGET11B.MH (I+3) := PRON (1,I)
+  END-IF
+  IF NOT (PRON (2,1) = '_' OR = ' ')
+    £ZGET11B.MV (I+3) := PRON (2,I)
+  END-IF
+  IF NOT (PRON (3,1) = '_' OR = ' ')
+    £ZGET11B.ED (I+3) := PRON (3,I)
+  END-IF
+  IF NOT (PRON (4,1) = '_' OR = ' ')
+    £ZGET11B.MC (I+3) := PRON (4,I)
+  END-IF
+  IF NOT (PRON (5,1) = '_' OR = ' ')
+    £ZGET11B.MM (I+3) := PRON (5,I)
+  END-IF
+  IF NOT (PRON (6,1) = '_' OR = ' ')
+    £ZGET11B.SD (I+3) := PRON (6,I)
+  END-IF
+  IF NOT (PRON (7,1) = '_' OR = ' ')
+    £ZGET11B.PB (I+3) := PRON (7,I)
+  END-IF
+  IF NOT (PRON (8,1) = '_' OR = ' ')
+    £ZGET11B.DT (I+3) := PRON (8,I)
+  END-IF
+  DECIDE ON FIRST VALUE OF QUI
+    VALUE 'MH'
+      £ZGET11B.MH (I+3) := MH (I+3)
+    VALUE 'MV'
+      £ZGET11B.MV (I+3) := MV (I+3)
+    VALUE 'ED'
+      £ZGET11B.ED (I+3) := ED (I+3)
+    VALUE 'MC'
+      £ZGET11B.MC (I+3) := MC (I+3)
+    VALUE 'MM'
+      £ZGET11B.MM (I+3) := MM (I+3)
+    VALUE 'SD'
+      £ZGET11B.SD (I+3) := SD (I+3)
+    VALUE 'PB'
+      £ZGET11B.PB (I+3) := PB (I+3)
+    VALUE 'DT'
+      £ZGET11B.DT (I+3) := DT (I+3)
+    NONE VALUE IGNORE
+  END-DECIDE
+  £ZADD11A.TB-TXT (I+3) := £ZGET11B.TB-TXT (I+3)
+END-FOR
+*
+*     Envoi du document dans CONNECT
+*
+£ZADD11A.NM-BURO:= 'S10316'
+£ZADD11A.NM-DOC := 'Toto'
+CALLNAT 'Z-ADD11A' £ZADD11A
+*
+IF £ZADD11A.CD-RETOUR NE 00
+  REINPUT 'Problème dans la génération du document CONNECT'
+ELSE
+*
+* Copie dans le casier FOOT
+*
+  COMPRESS 'Grille-fille' INTO £COPY.NM-DOC-NEW
+  £COPY.NM-BURO         := 'S10316'
+  £COPY.NM-DOC          := 'Toto'
+  £COPY.NM-BURO-NEW     := 'S10316'
+  £COPY.NM-CASIER-NEW   := 'Personnel'
+  £COPY.NM-CLASSEUR-NEW := 'loto'
+  CALLNAT 'Z-COP11' £COPY
+*
+* Suppression du document de travail 'Toto'
+*
+  £SUPP.NM-BURO := 'S10316'
+  £SUPP.NM-DOC  := 'Toto'
+  CALLNAT 'Z-ERA11' £SUPP
+*
+  SET WINDOW 'LOTO-WIN'
+  INPUT WINDOW = 'LOTO-WIN' USING MAP 'LOTO-WIN'
+*
+END-IF
+*
+END

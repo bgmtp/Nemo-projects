@@ -1,0 +1,36 @@
+CGI Calculator
+==============
+(c) Paul Griffiths 1999
+Email: mail@paulgriffiths.net
+
+
+Function
+========
+
+Implements a simple, web-based calculator.
+
+
+Usage
+=====
+
+Place the exectuable in the cgi-bin (or equivalent) directory
+on your web server. Call it without any input to generate the
+initial HTML interface. DO NOT PUT THIS PROGRAM UNEDITED ON A
+PRODUCTION WEB SERVER!! It has been written for demonstration
+and illustrative purposes, and may be missing important security
+checks and safeguards!
+
+
+Installation
+============
+
+If your system supports 'make', simply type:
+
+    make
+
+at the command line to build the project. Otherwise, you will have
+to compile and link 'calc.c' and 'cgihelp.c' in your usual way. 
+'calc.c' uses functions from the math library, so don't forget to link
+this in if you compile it yourself.
+
+

@@ -1,0 +1,192 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+DEFINE DATA
+GLOBAL USING LOTOF-G
+LOCAL
+1 MATCH (P2)
+1 SERIE (P2)
+1 I     (P2)
+END-DEFINE
+*
+FOR I = 1 TO 2
+  RESET SERIE
+  IF I = 2
+    MOVE RES-E (*) TO RES-D (*)
+  END-IF
+*
+  MATCH := 1
+  REPEAT
+    IF ( ((OUD (MATCH) = 'D' AND BUTD1 (MATCH) >= BUTD2 (MATCH)) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD1 (MATCH+1) >= BUTD2 (MATCH+1))
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD1 (MATCH+1) <= BUTD2 (MATCH+1))))
+        OR
+        ((OUD (MATCH) = 'E' AND BUTD1 (MATCH) <= BUTD2 (MATCH)) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD1 (MATCH+1) >= BUTD2 (MATCH+1))
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD1 (MATCH+1) <= BUTD2 (MATCH+1)))) )
+      ADD 1 TO MATCH
+    ELSE
+      ESCAPE BOTTOM
+    END-IF
+    UNTIL RES-D (MATCH) = ' '
+  END-REPEAT
+  IF MATCH > 2
+    ADD 1 TO SERIE
+    IF I = 1
+      COMPRESS MATCH 'matchs sans défaite' INTO EQ-DOM.SERIES (SERIE)
+    ELSE
+      COMPRESS MATCH 'matchs sans défaite' INTO EQ-EXT.SERIES (SERIE)
+    END-IF
+  END-IF
+*
+  MATCH := 1
+  REPEAT
+    IF ( ((OUD (MATCH) = 'D' AND BUTD1 (MATCH) <= BUTD2 (MATCH)) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD1 (MATCH+1) <= BUTD2 (MATCH+1))
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD1 (MATCH+1) >= BUTD2 (MATCH+1))))
+        OR
+        ((OUD (MATCH) = 'E' AND BUTD1 (MATCH) >= BUTD2 (MATCH)) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD1 (MATCH+1) <= BUTD2 (MATCH+1))
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD1 (MATCH+1) >= BUTD2 (MATCH+1)))) )
+      ADD 1 TO MATCH
+    ELSE
+      ESCAPE BOTTOM
+    END-IF
+    UNTIL RES-D (MATCH) = ' '
+  END-REPEAT
+  IF MATCH > 2
+    ADD 1 TO SERIE
+    IF I = 1
+      COMPRESS MATCH 'matchs sans victoire' INTO EQ-DOM.SERIES (SERIE)
+    ELSE
+      COMPRESS MATCH 'matchs sans victoire' INTO EQ-EXT.SERIES (SERIE)
+    END-IF
+  END-IF
+*
+  MATCH := 1
+  REPEAT
+    IF ( (OUD (MATCH) = 'D' AND BUTD1 (MATCH) = 0) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD1 (MATCH+1) = 0)
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD2 (MATCH+1) = 0)))
+        OR
+        ((OUD (MATCH) = 'E' AND BUTD2 (MATCH) = 0) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD1 (MATCH+1) = 0)
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD2 (MATCH+1) = 0)) )
+      ADD 1 TO MATCH
+    ELSE
+      ESCAPE BOTTOM
+    END-IF
+    UNTIL RES-D (MATCH) = ' '
+  END-REPEAT
+  IF MATCH > 2
+    ADD 1 TO SERIE
+    IF I = 1
+      COMPRESS MATCH 'matchs sans but marqué'
+        INTO EQ-DOM.SERIES (SERIE)
+    ELSE
+      COMPRESS MATCH 'matchs sans but marqué'
+        INTO EQ-EXT.SERIES (SERIE)
+    END-IF
+  END-IF
+*
+  MATCH := 1
+  REPEAT
+    IF ( (OUD (MATCH) = 'D' AND BUTD2 (MATCH) = 0) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD2 (MATCH+1) = 0)
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD1 (MATCH+1) = 0)))
+        OR
+        ((OUD (MATCH) = 'E' AND BUTD1 (MATCH) = 0) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD2 (MATCH+1) = 0)
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD1 (MATCH+1) = 0)) )
+      ADD 1 TO MATCH
+    ELSE
+      ESCAPE BOTTOM
+    END-IF
+    UNTIL RES-D (MATCH) = ' '
+  END-REPEAT
+  IF MATCH > 2
+    ADD 1 TO SERIE
+    IF I = 1
+      COMPRESS MATCH 'matchs sans but encaissé'
+        INTO EQ-DOM.SERIES (SERIE)
+    ELSE
+      COMPRESS MATCH 'matchs sans but encaissé'
+        INTO EQ-EXT.SERIES (SERIE)
+    END-IF
+  END-IF
+*
+  MATCH := 1
+  REPEAT
+    IF ( (OUD (MATCH) = 'D' AND BUTD1 (MATCH) NE 0) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD1 (MATCH+1) NE 0)
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD2 (MATCH+1) NE 0)))
+        OR
+        ((OUD (MATCH) = 'E' AND BUTD2 (MATCH) NE 0) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD1 (MATCH+1) NE 0)
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD2 (MATCH+1) NE 0)) )
+      ADD 1 TO MATCH
+    ELSE
+      ESCAPE BOTTOM
+    END-IF
+    UNTIL RES-D (MATCH) = ' '
+  END-REPEAT
+  IF MATCH > 2 AND SERIE < 3
+    ADD 1 TO SERIE
+    IF I = 1
+      COMPRESS MATCH 'matchs avec but(s) marqué(s)'
+        INTO EQ-DOM.SERIES (SERIE)
+    ELSE
+      COMPRESS MATCH 'matchs avec but(s) marqué(s)'
+        INTO EQ-EXT.SERIES (SERIE)
+    END-IF
+  END-IF
+*
+  MATCH := 1
+  REPEAT
+    IF ( (OUD (MATCH) = 'D' AND BUTD2 (MATCH) NE 0) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD2 (MATCH+1) NE 0)
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD1 (MATCH+1) NE 0)))
+        OR
+        ((OUD (MATCH) = 'E' AND BUTD1 (MATCH) NE 0) AND
+        ((OUD (MATCH+1) = 'D' AND BUTD2 (MATCH+1) NE 0)
+        OR
+        (OUD (MATCH+1) = 'E' AND BUTD1 (MATCH+1) NE 0)) )
+      ADD 1 TO MATCH
+    ELSE
+      ESCAPE BOTTOM
+    END-IF
+    UNTIL RES-D (MATCH) = ' '
+  END-REPEAT
+  IF MATCH > 2 AND SERIE < 3
+    ADD 1 TO SERIE
+    IF I = 1
+      COMPRESS MATCH 'matchs avec but(s) encaissé(s)'
+        INTO EQ-DOM.SERIES (SERIE)
+    ELSE
+      COMPRESS MATCH 'matchs avec but(s) encaissé(s)'
+        INTO EQ-EXT.SERIES (SERIE)
+    END-IF
+  END-IF
+END-FOR
+*
+IF NOT (EQ-DOM.SERIES (*) NE ' ')
+  MOVE 'Aucune' TO EQ-DOM.SERIES (1)
+END-IF
+IF NOT (EQ-EXT.SERIES (*) NE ' ')
+  MOVE 'Aucune' TO EQ-EXT.SERIES (1)
+END-IF
+*
+END

@@ -1,0 +1,540 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+*** MODULE : BILL     - LIBRAIRIE : H18005LI - EDITE LE  15/11/95 ***
+*                                                                      *
+*                       BILLARD FRANCAIS                               *
+*                                                                      *
+*                                                                      *
+*                                                                      *
+*                                                                      *
+*                                                                      *
+* ==================================================================== *
+*
+DEFINE DATA
+GLOBAL USING BILL-G
+LOCAL  USING BILL-L
+END-DEFINE
+*
+* ==================================================================== *
+*                                                                      *
+*                       PROGRAMME PRINCIPAL                            *
+*                                                                      *
+* ==================================================================== *
+*
+*
+SET KEY ALL                         /* TOUTES LES TOUCHES DE FONCTIONS
+*
+PERFORM INIT-PARAM                  /* INITIALISE LE TAPIS
+*
+PERFORM CALC-CURS                   /* CALCULE LA POSITION DU CURSEUR
+*
+REPEAT
+  MOVE 50 TO FORCE
+  RESET DEMI-POINT
+  PERFORM SAISIE-COUP                 /* SAISIE DE LA DIRECTION DU COUP
+  IF *PF-KEY = 'PF3' ESCAPE BOTTOM END-IF
+  INPUT MARK 391 USING MAP 'BILL-M2'       /* ECRAN DE JEU
+  IF *PF-KEY = 'PF3' ESCAPE BOTTOM END-IF
+  PERFORM CALC-DEPL               /* CALCULE LE DEPLACEMENT DE LA BOULE
+  PERFORM JOUE-COUP               /* TRAITEMENT DU COUP
+  MOVE POS-BOULEX TO X
+  MOVE POS-BOULEY TO Y
+  PERFORM CALC-CURS
+  IF DEMI-POINT = '2' ADD 1 TO POINT END-IF
+  ADD 1 TO NB-COUP
+END-REPEAT
+*
+RELEASE STACK
+STACK TOP COMMAND 'MENU'    /* RETOUR AU MENU GENERAL
+STACK TOP COMMAND 'LOGON H18005LI'
+STOP
+*
+*
+* ==================================================================== *
+*                                                                      *
+*                            SUBROUTINES                               *
+*                                                                      *
+* ==================================================================== *
+*
+*
+* ------------------
+* INITIALISE L'ECRAN
+* ------------------
+*
+DEFINE SUBROUTINE INIT-PARAM
+*
+RESET POINT NB-COUP
+RESET TAPIS(*,*)
+MOVE BB  TO TAPIS(7,5)               /* PLACEMENT DE LA BOULE BLANCHE
+MOVE BP  TO TAPIS(4,25)              /* PLACEMENT DE LA BOULE POINTEE
+MOVE BR  TO TAPIS(10,25)             /* PLACEMENT DE LA BOULE ROUGE
+MOVE 50  TO FORCE
+MOVE 5   TO X
+MOVE 5   TO POS-BOULEX
+MOVE 5   TO BXX
+MOVE 7   TO Y
+MOVE 7   TO BYY
+MOVE 7   TO POS-BOULEY
+MOVE 25  TO BRX
+MOVE 25  TO POS-BOULRX
+MOVE 10  TO BRY
+MOVE 10  TO POS-BOULRY
+MOVE 25  TO BPX
+MOVE 25  TO POS-BOULPX
+MOVE 4   TO BPY
+MOVE 4   TO POS-BOULPY
+MOVE 5   TO EFFET
+MOVE 5   TO IMPACT
+*
+MOVE 2      TO IMPAK(1)
+MOVE 1,7    TO IMPAK(2)
+MOVE 1,4    TO IMPAK(3)
+MOVE 1,2    TO IMPAK(4)
+MOVE 1      TO IMPAK(5)
+MOVE -1,2   TO IMPAK(6)
+MOVE -1,4   TO IMPAK(7)
+MOVE -1,7   TO IMPAK(8)
+MOVE -2     TO IMPAK(9)
+*
+MOVE 0,5    TO EFFEK(1)
+MOVE 0,625  TO EFFEK(2)
+MOVE 0,75   TO EFFEK(3)
+MOVE 0,875  TO EFFEK(4)
+MOVE 1      TO EFFEK(5)
+MOVE 1,25   TO EFFEK(6)
+MOVE 1,5    TO EFFEK(7)
+MOVE 1,75   TO EFFEK(8)
+MOVE 2      TO EFFEK(9)
+*
+END-SUBROUTINE
+*
+*
+* -------------------------------------------------
+* SAISIE LES PARAMETRES NECESSAIRES AU COUP A JOUER
+* -------------------------------------------------
+*
+DEFINE SUBROUTINE SAISIE-COUP
+*
+MOVE BXX TO X
+MOVE BYY TO Y
+PERFORM CALC-CURS
+INPUT MARK CURS USING MAP 'BILL-M1'
+*
+PERFORM CALC-XY                     /* CALCULE LES COORDONNEES SAISIES
+*
+IF X < 0,5 OR X > 30,5 OR Y > 13 OR Y < 1
+  REINPUT 'OUT' MARK CURS                    /* HORS DE LA TABLE
+END-IF
+*
+MOVE X TO KX                                 /* POSITION X DU CURSEUR
+MOVE Y TO KY                                 /* POSITION Y DU CURSEUR
+*
+END-SUBROUTINE
+*
+*
+* ----------------------------------
+* CALCULE LE DEPLACEMENT DE LA BOULE
+* ----------------------------------
+*
+DEFINE SUBROUTINE CALC-DEPL
+*
+COMPUTE DX = KX - POS-BOULEX + 1         /* CALCUL DU DELTA X
+COMPUTE DY = KY - POS-BOULEY             /* CALCUL DU DELTA Y
+*
+COMPUTE DX2 = DX * DX
+COMPUTE DY2 = DY * DY
+COMPUTE RAC = DX2 + DY2 + 30
+*
+COMPUTE DEPX =  DX / SQRT(RAC)           /* CALCUL DU DEPLACEMENT X
+COMPUTE DEPY =  DY / SQRT(RAC)           /* CALCUL DU DEPLACEMENT Y
+*
+END-SUBROUTINE
+*
+*
+* -----------------------------
+* CALCUL DES COORDONéES SAISIES
+* -----------------------------
+*
+DEFINE SUBROUTINE CALC-XY
+*
+COMPUTE Y =   *CURS-LINE - 2
+COMPUTE X = ( *CURS-COL  - 9 ) / 2
+END-SUBROUTINE
+*
+*
+* ---------------------------
+* CALCULE LA PLACE DU CURSEUR
+* ---------------------------
+*
+DEFINE SUBROUTINE CALC-CURS
+*
+COMPUTE CURS =  X + 30 * ( Y - 1 )
+*
+END-SUBROUTINE
+*
+*
+* ------------
+* JOUE LE COUP
+* ------------
+*
+DEFINE SUBROUTINE JOUE-COUP
+*
+REPEAT UNTIL ( FORCE LE 0 AND FORCEP LE 0 AND FORCER LE 0 )
+*
+  IF FORCE > 0
+    MOVE BXX TO PX                             /* POSITION X INITIALE
+    MOVE BYY TO PY                             /* POSITION Y INITIALE
+    RESET OK
+    REPEAT
+      MOVE 'OK' TO OK
+      COMPUTE POS-BOULEX = POS-BOULEX + DEPX
+      COMPUTE POS-BOULEY = POS-BOULEY + DEPY
+      COMPUTE ROUNDED BXX = INT(POS-BOULEX)
+      COMPUTE ROUNDED BYY = INT(POS-BOULEY)
+        /*
+        /*
+        /* TRAITEMENT DU REBOND SUR LA BANDE
+        /*
+        /*
+      IF BXX > 30 OR BXX < 1
+        COMPUTE DEPX = -1 * DEPX / EFFEK(EFFET)  /* REBOND SUR BANDE
+        COMPUTE FORCE = FORCE * 0,85             /* LATERALE
+        RESET OK
+      END-IF
+      IF BYY > 13 OR BYY < 1
+        COMPUTE DEPY = -1 * DEPY / EFFEK(EFFET)  /* REBOND SUR BANDE
+        COMPUTE FORCE = FORCE * 0,85             /* DU HAUT OU DU BAS
+        RESET OK
+      END-IF
+        /*
+        /*
+        /*
+        /*
+        /*
+      UNTIL OK = 'OK'
+    END-REPEAT
+  ELSE RESET FORCE END-IF
+*
+  MOVE BB TO COLIS
+  PERFORM VERIF-COLIS                 /* TESTE SI IL Y A COLISION
+  PERFORM EFFACE-BOULE
+  MOVE BB TO TYPE-BOULE
+  PERFORM MARQUE-BOULE
+*
+  IF FORCER > 0
+    PERFORM BOULE-ROUGE
+  END-IF
+  IF FORCEP > 0
+    PERFORM BOULE-POINT
+  END-IF
+*
+  SET CONTROL 'N'
+  INPUT USING MAP 'BILL-M2'
+*
+  COMPUTE FORCE = FORCE - 2
+*
+END-REPEAT
+*
+END-SUBROUTINE
+*
+*
+* ------------------------------
+* VERIFIE SI IL Y A UNE COLISION
+* ------------------------------
+*
+DEFINE SUBROUTINE VERIF-COLIS
+*
+DECIDE ON FIRST VALUE OF COLIS
+*
+  VALUE BB /* ------------------------------- BOULE BLANCHE
+*
+    IF TAPIS(BYY,BXX) = BR
+      COMPUTE IMP-5 = 5 - IMPACT
+      COMPUTE FORCER = FORCE * ( 0,9 - ( INT( IMP-5 ) / 10 ) )
+      COMPUTE FORCE  = FORCE * ( 0,5 + ( INT( IMP-5 ) / 10 ) )
+      MOVE DEPX TO DEPLX-IN
+      MOVE DEPY TO DEPLY-IN
+      MOVE DX   TO    DX-IN
+      MOVE DY   TO    DY-IN
+      PERFORM CALC-IMPACT
+*     COMPUTE DEPX = DEPX * EFFEK(EFFET)
+*     COMPUTE DEPY = 1 - DEPY * EFFEK(EFFET)
+      MOVE DEPLX-OUT TO DEPRX
+      MOVE DEPLY-OUT TO DEPRY
+      IF DEMI-POINT = ' ' OR = 'R' MOVE 'R' TO DEMI-POINT
+      ELSE MOVE '2' TO DEMI-POINT END-IF
+    ELSE
+      IF TAPIS(BYY,BXX) = BP
+        COMPUTE IMP-5 = 5 - IMPACT
+        COMPUTE FORCEP = FORCE * ( 0,9 - ( INT( IMP-5 ) / 10 ) )
+        COMPUTE FORCE  = FORCE * ( 0,5 + ( INT( IMP-5 ) / 10 ) )
+        MOVE DEPX TO DEPLX-IN
+        MOVE DEPY TO DEPLY-IN
+        MOVE DX   TO    DX-IN
+        MOVE DY   TO    DY-IN
+        PERFORM CALC-IMPACT
+*       COMPUTE DEPX = DEPX * EFFEK(EFFET)
+*       COMPUTE DEPY = DEPY * EFFEK(EFFET)
+        MOVE DEPLX-OUT TO DEPPX
+        MOVE DEPLY-OUT TO DEPPY
+        IF DEMI-POINT = ' ' OR = 'P' MOVE 'P' TO DEMI-POINT
+        ELSE MOVE '2' TO DEMI-POINT END-IF
+      END-IF
+    END-IF
+*
+  VALUE BR /* ------------------------------- BOULE ROUGE
+*
+    IF TAPIS(BRY,BRX) = BB
+      COMPUTE FORCE  = FORCER * 0,95
+      COMPUTE FORCER = FORCER * 0,85
+      MOVE DEPRX TO DEPLX-IN
+      MOVE DEPRY TO DEPLY-IN
+      PERFORM CALC-IMPACT
+      MOVE DEPLX-OUT TO DEPX
+      MOVE DEPLY-OUT TO DEPY
+      IF DEMI-POINT = ' ' OR = 'R' MOVE 'R' TO DEMI-POINT
+      ELSE MOVE '2' TO DEMI-POINT END-IF
+    ELSE
+      IF TAPIS(BRY,BRX) = BP
+        COMPUTE FORCEP = FORCER * 0,95
+        COMPUTE FORCER = FORCER * 0,85
+        MOVE DEPRX TO DEPLX-IN
+        MOVE DEPRY TO DEPLY-IN
+        PERFORM CALC-IMPACT
+        MOVE DEPLX-OUT TO DEPPX
+        MOVE DEPLY-OUT TO DEPPY
+      END-IF
+    END-IF
+*
+  VALUE BP /* ------------------------------- BOULE POINTEE
+*
+    IF TAPIS(BPY,BPX) = BB
+      COMPUTE FORCE  = FORCEP * 0,95
+      COMPUTE FORCEP = FORCEP * 0,85
+      MOVE DEPPX TO DEPLX-IN
+      MOVE DEPPY TO DEPLY-IN
+      PERFORM CALC-IMPACT
+      MOVE DEPLX-OUT TO DEPX
+      MOVE DEPLY-OUT TO DEPY
+      IF DEMI-POINT = ' ' OR = 'P' MOVE 'P' TO DEMI-POINT
+      ELSE MOVE '2' TO DEMI-POINT END-IF
+    ELSE
+      IF TAPIS(BPY,BPX) = BR
+        COMPUTE FORCER = FORCEP * 0,95
+        COMPUTE FORCEP = FORCEP * 0,85
+        MOVE DEPPX TO DEPLX-IN
+        MOVE DEPPY TO DEPLY-IN
+        PERFORM CALC-IMPACT
+        MOVE DEPLX-OUT TO DEPRX
+        MOVE DEPLY-OUT TO DEPRY
+      END-IF
+    END-IF
+*
+  NONE VALUE IGNORE
+END-DECIDE
+*
+END-SUBROUTINE
+*
+*
+* ----------------------
+* DEPLACE LA BOULE ROUGE
+* ----------------------
+*
+DEFINE SUBROUTINE BOULE-ROUGE
+*
+MOVE BRX TO PRX
+MOVE BRY TO PRY
+*
+RESET OK
+REPEAT
+  MOVE 'OK' TO OK
+  COMPUTE POS-BOULRX = POS-BOULRX + DEPRX
+  COMPUTE POS-BOULRY = POS-BOULRY + DEPRY
+  COMPUTE ROUNDED BRX = INT(POS-BOULRX)
+  COMPUTE ROUNDED BRY = INT(POS-BOULRY)
+  IF BRX > 30 OR BRX < 1
+    COMPUTE DEPRX = -1 * DEPRX
+    RESET OK
+  END-IF
+  IF BRY > 13 OR BRY < 1
+    COMPUTE DEPRY = -1 * DEPRY
+    RESET OK
+  END-IF
+  UNTIL OK = 'OK'
+END-REPEAT
+RESET OK
+MOVE BR TO COLIS
+PERFORM VERIF-COLIS
+PERFORM EFFACE-BOULE
+MOVE BR  TO TYPE-BOULE
+PERFORM MARQUE-BOULE
+*
+COMPUTE FORCER = FORCER - 2
+*
+END-SUBROUTINE
+*
+*
+* ------------------------
+* DEPLACE LA BOULE POINTEE
+* ------------------------
+*
+DEFINE SUBROUTINE BOULE-POINT
+*
+RESET OK
+MOVE BPX TO PPX
+MOVE BPY TO PPY
+*
+REPEAT
+  MOVE 'OK' TO OK
+  COMPUTE POS-BOULPX = POS-BOULPX + DEPPX
+  COMPUTE POS-BOULPY = POS-BOULPY + DEPPY
+  COMPUTE ROUNDED BPX = INT(POS-BOULPX)
+  COMPUTE ROUNDED BPY = INT(POS-BOULPY)
+  IF BPX > 30 OR BPX < 1
+    COMPUTE DEPPX = -1 * DEPPX
+    RESET OK
+  END-IF
+  IF BPY > 13 OR BPY < 1
+    COMPUTE DEPPY = -1 * DEPPY
+    RESET OK
+  END-IF
+  UNTIL OK = 'OK'
+END-REPEAT
+RESET OK
+MOVE BP TO COLIS
+PERFORM VERIF-COLIS
+PERFORM EFFACE-BOULE
+MOVE BP  TO TYPE-BOULE
+PERFORM MARQUE-BOULE
+*
+COMPUTE FORCEP = FORCEP - 2
+*
+END-SUBROUTINE
+*
+*
+* -------------------------------
+* CALCULE L'INCIDENCE DE L'IMPACT
+* -------------------------------
+*
+DEFINE SUBROUTINE CALC-IMPACT
+*
+COMPUTE SIGNEX = SGN(DEPLX-IN)
+COMPUTE SIGNEY = SGN(DEPLY-IN)
+COMPUTE ADX    = ABS( DX-IN )
+COMPUTE ADY    = ABS( DY-IN )
+*
+DECIDE ON FIRST VALUE OF SIGNEX
+*
+  VALUE -1
+*
+    IF ADX < ADY
+      COMPUTE DEPLX-OUT = DEPLX-IN * IMPAK(IMPACT) * SIGNEY
+      COMPUTE DEPLY-OUT = DEPLY-IN * ABS(IMPAK(IMPACT))
+    ELSE
+      COMPUTE DEPLX-OUT = DEPLX-IN * ABS(IMPAK(IMPACT))
+      COMPUTE DEPLY-OUT = DEPLY-IN * IMPAK(IMPACT) * SIGNEY * -1
+    END-IF
+*
+  VALUE 1 IGNORE
+*
+    IF ADX < ADY
+      COMPUTE DEPLX-OUT = DEPLX-IN * IMPAK(IMPACT) * SIGNEY * -1
+      COMPUTE DEPLY-OUT = DEPLY-IN * ABS(IMPAK(IMPACT))
+    ELSE
+      COMPUTE DEPLX-OUT = DEPLX-IN * ABS(IMPAK(IMPACT))
+      COMPUTE DEPLY-OUT = DEPLY-IN * IMPAK(IMPACT) * SIGNEY
+    END-IF
+*
+  NONE VALUE IGNORE
+*
+END-DECIDE
+*
+COMPUTE SIGNEX = SGN(DEPLX-OUT)
+REPEAT UNTIL ( DEPLX-OUT < 2 AND DEPLX-OUT > -2 )
+  COMPUTE DEPLX-OUT = DEPLX-OUT - ( SIGNEX * 0,2 )
+END-REPEAT
+*
+COMPUTE SIGNEY = SGN(DEPLY-OUT)
+REPEAT UNTIL ( DEPLY-OUT < 2 AND DEPLY-OUT > -2 )
+  COMPUTE DEPLY-OUT = DEPLY-OUT - ( SIGNEY * 0,2 )
+END-REPEAT
+*
+END-SUBROUTINE
+*
+*
+* ---------------------------------
+* TESTE SI ON N'EFFACE PAS UN BOULE
+* ---------------------------------
+*
+DEFINE SUBROUTINE EFFACE-BOULE
+*
+DECIDE ON FIRST VALUE OF COLIS
+*
+  VALUE BB
+*
+    IF TAPIS(PY,PX) = BB
+      MOVE ' ' TO TAPIS(PY,PX)
+    END-IF
+*
+  VALUE BR
+*
+    IF TAPIS(PRY,PRX) = BR
+      MOVE ' ' TO TAPIS(PRY,PRX)
+    END-IF
+*
+  VALUE BP
+*
+    IF TAPIS(PPY,PPX) = BP
+      MOVE ' ' TO TAPIS(PPY,PPX)
+    END-IF
+*
+  NONE VALUE IGNORE
+END-DECIDE
+*
+END-SUBROUTINE
+*
+*
+* -----------------
+* AFFICHE UNE BOULE
+* -----------------
+*
+DEFINE SUBROUTINE MARQUE-BOULE
+*
+DECIDE ON FIRST VALUE OF TYPE-BOULE
+*
+  VALUE BB
+*
+    IF        TAPIS(BYY,BXX) NE ' '
+      IF      TAPIS(BYY,BXX) = BR COMPUTE FORCER = FORCER + 10
+      ELSE IF TAPIS(BYY,BXX) = BP COMPUTE FORCEP = FORCEP + 10 END-IF
+      END-IF
+    END-IF
+    MOVE BB TO TAPIS(BYY,BXX)
+*
+  VALUE BR
+*
+    IF        TAPIS(BRY,BRX) NE ' '
+      IF      TAPIS(BRY,BRX) = BB COMPUTE FORCE  = FORCE  + 10
+      ELSE IF TAPIS(BRY,BRX) = BP COMPUTE FORCEP = FORCEP + 10 END-IF
+      END-IF
+    END-IF
+    MOVE BR TO TAPIS(BRY,BRX)
+*
+  VALUE BP
+*
+    IF        TAPIS(BPY,BPX) NE ' '
+      IF      TAPIS(BPY,BPX) = BR COMPUTE FORCER = FORCER + 10
+      ELSE IF TAPIS(BPY,BPX) = BB COMPUTE FORCE  = FORCE  + 10 END-IF
+      END-IF
+    END-IF
+    MOVE BP TO TAPIS(BPY,BPX)
+*
+  NONE VALUE IGNORE
+END-DECIDE
+*
+END-SUBROUTINE
+*
+END

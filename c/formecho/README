@@ -1,0 +1,36 @@
+FormEcho
+========
+(c) Paul Griffiths 1999
+Email: mail@paulgriffiths.net
+
+
+Contents
+========
+
+    formecho.c
+    cgihelp.h
+    cgihelp.c
+    Makefile
+    README (this file)
+
+Function
+========
+
+Simple CGI script to echo the contents of an HTML form.
+
+
+Installation
+============
+
+If you system supports "make", simply type:
+
+    make
+
+at the command line to build the project. Otherwise, you will need
+to compile and link formecho.c and cgihelp.c in the normal way.
+
+The resultant executable should be placed in the folder where CGI
+scripts are normally kept on your server. DO NOT USE THIS PROGRAM
+UNMODIFIED ON A PRODUCTION WEB SERVER!!! It has been written for
+demonstration purposes, and is missing a number of key security
+features.

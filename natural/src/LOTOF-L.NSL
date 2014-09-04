@@ -1,0 +1,226 @@
+DEFINE DATA LOCAL
+/* >Natural Source Header 000000
+/* :Mode S
+/* :CP
+/* <Natural Source Header
+/* *Zones locales
+/* *-------------
+/* *
+/* *Zones de travail
+ 1 EQUI-D (A12/1:13)
+ 1 EQUI-E (A12/1:13)
+ 1 EQUI-D1 (A12/1:18) INIT
+   (1) <'Auxerre'>
+   (2) <'Bastia'>
+   (3) <'Bordeaux'>
+   (4) <'Cannes'>
+   (5) <'Chateauroux'>
+   (6) <'Guingamp'>
+   (7) <'Le Havre'>
+   (8) <'Lens'>
+   (9) <'Lyon'>
+   (10) <'Marseille'>
+   (11) <'Metz'>
+   (12) <'Monaco'>
+   (13) <'Montpellier'>
+   (14) <'Nantes'>
+   (15) <'Paris SG'>
+   (16) <'Rennes'>
+   (17) <'Strasbourg'>
+   (18) <'Toulouse'>
+ 1 EQUI-D2 (A12/1:22) INIT
+   (1) <'Amiens'>
+   (2) <'Beauvais'>
+   (3) <'Caen'>
+   (4) <'Gueugnon'>
+   (5) <'Laval'>
+   (6) <'Le Mans'>
+   (7) <'Lille'>
+   (8) <'Lorient'>
+   (9) <'Louhans-Cx'>
+   (10) <'Martigues'>
+   (11) <'Mulhouse'>
+   (12) <'Nancy'>
+   (13) <'Nice'>
+   (14) <'Nîmes'>
+   (15) <'Niort'>
+   (16) <'Red Star'>
+   (17) <'Sochaux'>
+   (18) <'St Etienne'>
+   (19) <'Toulon'>
+   (20) <'Troyes'>
+   (21) <'Valence'>
+   (22) <'Wasquehal'>
+/* *Description des documents
+ 1 £GRILLE
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 TB-DESCR (A60/1:4)
+   2 CD-DOC-FORMAT (A1)
+   2 CD-TYPE-TXT (A1)
+   2 NO-TYPE-TXT-TOT (P3)
+   2 NO-TYPE-TXT-COURANT (P3)
+   2 TB-TXT (A251/20)
+   2 REDEFINE TB-TXT
+     3 TB-TXT-RE (20)
+       4 FILLER 41X
+       4 DATE-L (A8)
+       4 REDEFINE DATE-L
+         5 JJ-L (N2)
+         5 FILLER 1X
+         5 MM-L (N2)
+         5 FILLER 1X
+         5 AA-L (N2)
+       4 FILLER 1X
+       4 HH-L (N2)
+   2 REDEFINE TB-TXT
+     3 TB-TXT-RE-1 (20)
+       4 ZN-CARACT-CONTR (A1)
+       4 FILLER 5X
+       4 EQUIPE-D (A12)
+       4 FILLER 5X
+       4 EQUIPE-E (A12)
+       4 FILLER 7X
+       4 MH (A1)
+       4 FILLER 2X
+       4 MV (A1)
+       4 FILLER 2X
+       4 ED (A1)
+       4 FILLER 2X
+       4 MC (A1)
+       4 FILLER 2X
+       4 MM (A1)
+       4 FILLER 2X
+       4 SD (A1)
+       4 FILLER 2X
+       4 PB (A1)
+       4 FILLER 2X
+       4 DT (A1)
+       4 FILLER 5X
+       4 TOT-1 (A1)
+       4 FILLER 2X
+       4 TOT-N (A1)
+       4 FILLER 2X
+       4 TOT-2 (A1)
+       4 FILLER 175X
+   2 ZN-TRAV (A240)
+   2 ZN-TRAV-2 (A79)
+/* **
+ 1 £HISTO-D1
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 TB-DESCR (A60/1:4)
+   2 CD-DOC-FORMAT (A1)
+   2 CD-TYPE-TXT (A1)
+   2 NO-TYPE-TXT-TOT (P3)
+   2 NO-TYPE-TXT-COURANT (P3)
+   2 TB-TXT (A251/20)
+   2 REDEFINE TB-TXT
+     3 TB-TXT-RE (20)
+       4 CARACT-CONTR (A1)
+       4 DETAIL-MATCHS (A73)
+       4 REDEFINE DETAIL-MATCHS
+         5 FILLER 9X
+         5 MATCHD (A28)
+         5 FILLER 8X
+         5 MATCHE (A28)
+       4 REDEFINE DETAIL-MATCHS
+         5 FILLER 5X
+         5 NJD (N2)
+         5 FILLER 1X
+         5 EQUIPE (A12)
+         5 FILLER 14X
+         5 RD (A3)
+         5 FILLER 4X
+         5 NJE (N2)
+         5 FILLER 27X
+         5 RE (A3)
+       4 FILLER 177X
+   2 ZN-TRAV (A240)
+   2 ZN-TRAV-2 (A79)
+/* **
+ 1 £CLAS
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-DOC (A32)
+   2 NO-ISN (P8)
+   2 TB-DESCR (A60/1:4)
+   2 CD-DOC-FORMAT (A1)
+   2 CD-TYPE-TXT (A1)
+   2 NO-TYPE-TXT-TOT (P3)
+   2 NO-TYPE-TXT-COURANT (P3)
+   2 TB-TXT (A251/20)
+   2 REDEFINE TB-TXT
+     3 TB-TXT-RE (20)
+       4 ZN-CARACT-CONTR (A1)
+       4 LIGNE (A76)
+       4 REDEFINE LIGNE
+         5 PLACE (A2)
+         5 FILLER 3X
+         5 EQUIPE (A12)
+         5 FILLER 1X
+         5 POINT (A2)
+         5 FILLER 2X
+         5 JOUE (A2)
+         5 FILLER 2X
+         5 GAGNE (A2)
+         5 FILLER 2X
+         5 NUL (A2)
+         5 FILLER 2X
+         5 PERDU (A2)
+         5 FILLER 2X
+         5 POUR (A2)
+         5 FILLER 2X
+         5 CONTRE (A2)
+         5 FILLER 2X
+         5 SDIFF (A1)
+         5 DIFF (A2)
+         5 FILLER 3X
+         5 DJOUE (A2)
+         5 FILLER 1X
+         5 DGAGNE (A2)
+         5 FILLER 1X
+         5 DNUL (A2)
+         5 FILLER 1X
+         5 DPERDU (A2)
+         5 FILLER 2X
+         5 EJOUE (A2)
+         5 FILLER 1X
+         5 EGAGNE (A2)
+         5 FILLER 1X
+         5 ENUL (A2)
+         5 FILLER 1X
+         5 EPERDU (A2)
+       4 FILLER 174X
+   2 ZN-TRAV (A240)
+   2 ZN-TRAV-2 (A79)
+/* **
+ 1 £LIST
+   2 CD-RETOUR (N2)
+   2 NM-BURO (A8)
+   2 NM-SECRET (A8)
+   2 NM-CASIER (A15)
+   2 NM-CLASSEUR (A15)
+   2 NO-CASIER (N5)
+   2 NO-CLASSEUR (N5)
+   2 NO-SEQ-CASIER (N1)
+   2 ZN-VAL-DEB (A32)
+   2 NB-DOC (N2)
+   2 TB-DOC (20)
+     3 NO-ISN (P8)
+     3 NM-DOC (A32)
+     3 ZN-DESCR (A60)
+     3 CD-DOC-FORMAT (A1)
+     3 NM-CASIER-2 (A15)
+     3 DT-DOC (N8)
+     3 NM-ENVOI-A-PAR (A20)
+     3 NB-ENVOI (N7)
+   2 ZN-TRAV (A49)
+END-DEFINE

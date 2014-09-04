@@ -1,0 +1,14 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>paulgriffiths</groupId>
+  <artifactId>c-examples</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Paul Griffiths' C programming examples</name>
+  <build>
+    <sourceDirectory>.</sourceDirectory>
+  </build>
+  <properties>
+    <sonar.language>c</sonar.language>
+  </properties>
+</project>

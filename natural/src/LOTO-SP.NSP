@@ -1,0 +1,35 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* :LineIncrement 10
+* <Natural Source Header
+* Programme d'orientation vers les
+* différents traitements du loto sportif
+*
+DEFINE DATA LOCAL
+1 CHOIX (A1/1:6)
+END-DEFINE
+*
+DEFINE WINDOW LOTO SIZE 16*45
+*
+REPEAT
+  SET WINDOW 'LOTO'
+  INPUT WINDOW = 'LOTO' USING MAP 'LOTO-SM'
+  DECIDE ON FIRST VALUE *CURS-LINE
+    VALUE 7
+      FETCH RETURN 'LOTO-SP7'
+    VALUE 8
+      FETCH RETURN 'LOTO-SP1'
+    VALUE 9
+      FETCH RETURN 'LOTO-SP2'
+    VALUE 10
+      FETCH RETURN 'LOTO-SP3'
+    VALUE 11
+      FETCH RETURN 'LOTO-SP5'
+    VALUE 12
+      ESCAPE BOTTOM
+    NONE VALUE IGNORE
+  END-DECIDE
+END-REPEAT
+STACK TOP COMMAND 'RETURN'
+END

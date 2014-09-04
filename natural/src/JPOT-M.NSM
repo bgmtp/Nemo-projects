@@ -1,0 +1,177 @@
+* >Natural Source Header 000000
+* :Mode S
+* :CP
+* <Natural Source Header
+* MAP2: PROTOTYPE
+* INPUT USING MAP 'XXXXXXXX'
+*     £HEUR GAIN MISE NB PAS(*) RESULTAT ROULEAU(*,*) TOT(*) TOT1(*)
+DEFINE DATA PARAMETER
+1 £HEUR (N07,0)
+1 GAIN (N10,0)
+1 MISE (N04,0)
+1 NB (N03,0)
+1 PAS (N03,0/00001:00020)
+1 RESULTAT (A010)
+1 ROULEAU (A005/00001:00003,00001:00003)
+1 TOT (N03,0/00001:00008)
+1 TOT1 (N03,1/00001:00008)
+END-DEFINE
+FORMAT PS=023 LS=080 ZP=OFF SG=OFF KD=OFF IP=OFF
+* MAP2: MAP PROFILES *****************************        200***********
+* ,TTAAAMMOO   D I D I N D I D I        ?_)^&:+(                       *
+* 023079        N0 NUCN             X        01 SYSPROF NL           1 *
+************************************************************************
+INPUT          (     IP=OFF                                           /*
+                                                                       )
+ 002T £HEUR  (AD=OIL ) /*.01D007 N07,0.
+ 027T '+---------------------------+'
+ 076T NB  (AD=OIL ) /*.01D003 N03,0.
+/
+ 002T *TIMX  (AD=OI ) /*.01S008 T    .
+ 027T '!'
+ 029T 'S U P E R   J A C K P O T'(I)
+ 055T '!'
+/
+ 027T '+---------------------------+'
+/
+ 022T 'X' (039)
+/
+ 001T '3 X'
+ 005T '*777*'(I)
+ 011T '1.000.000'
+ 022T 'X' (039)
+/
+ 022T 'XXX                                 XXX  O'
+/
+ 001T '3 X'
+ 005T '*BAR*'(I)
+ 022T 'XXX                                 XXX  !'
+/
+ 001T '3 X'
+ 005T 'JOKER'(I)
+ 013T '10.000   XXX'
+ 030T ROULEAU (001,001)  (AD=OIL ) /*.01D005 A005 .
+   /* A2000030000300001000010000100001120003003000004H
+ 039T ROULEAU (001,002)  (AD=OIL ) /*.01D005 A005 .
+ 048T ROULEAU (001,003)  (AD=OIL ) /*.01D005 A005 .
+ 058T 'XXX  !'
+/
+ 001T '3 X'
+ 005T '$$$$$'(I)
+ 022T 'XXX ---'
+ 030T ROULEAU (002,001)  (AD=OIL ) /*.01D005 A005 .
+ 036T '-'
+ 039T ROULEAU (002,002)  (AD=OIL ) /*.01D005 A005 .
+ 045T '-'
+ 048T ROULEAU (002,003)  (AD=OIL ) /*.01D005 A005 .
+ 054T '--- XXX  !'
+/
+ 022T 'XXX'
+ 030T ROULEAU (003,001)  (AD=OIL ) /*.01D005 A005 .
+ 039T ROULEAU (003,002)  (AD=OIL ) /*.01D005 A005 .
+ 048T ROULEAU (003,003)  (AD=OIL ) /*.01D005 A005 .
+ 058T 'XXX  !'
+/
+ 001T '2 X'
+ 005T '*777*'(I)
+ 015T '75     XXX                                 XXX==+'
+/
+ 001T '2 X'
+ 005T '$$$$$'(I)
+ 015T '50     XXX>>>>>-----------------------<<<<<XXX'
+/
+ 001T '2 X'
+ 005T '*BAR*'(I)
+ 015T '25     XXX                                 XXX'
+/
+ 001T '2 X'
+ 005T 'JOKER'(I)
+ 015T '10     XXX'
+ 037T RESULTAT  (AD=OIL ) /*.01D010 A010 .
+ 058T 'XXX'
+/
+ 022T 'XXX Mises'
+ 032T MISE  (AD=OILT ) /*.01D004 N04,0.
+ 039T 'Gains'
+ 045T GAIN  (AD=OILT ) /*.01D010 N10,0.
+ 058T 'XXX'
+/
+ 001T '1,2,3 X'
+ 009T '*****'(I)
+ 016T '0'
+ 022T 'X' (039)
+/
+ 021T 'XXXXX'
+ 027T 'PF3 = FIN'(I)
+ 037T 'XXXX'
+ 042T 'ENTR = TIRETTE'(I)
+ 057T 'XXXXX'
+/
+ 005T 'X' (073)
+/
+ 005T 'X  J-POT X 10000  X  75    X  50    X  25    X  10    X'
+ 062T '01    X  00    X'
+/
+ 005T 'X'
+ 009T TOT (001)  (AD=OIL ) /*.01D003 N03,0.
+   /* A1000080000100001000010000100001100001008000006H
+ 014T 'X'
+ 018T TOT (002)  (AD=OIL ) /*.01D003 N03,0.
+ 023T 'X'
+ 027T TOT (003)  (AD=OIL ) /*.01D003 N03,0.
+ 032T 'X'
+ 036T TOT (004)  (AD=OIL ) /*.01D003 N03,0.
+ 041T 'X'
+ 045T TOT (005)  (AD=OIL ) /*.01D003 N03,0.
+ 050T 'X'
+ 054T TOT (006)  (AD=OIL ) /*.01D003 N03,0.
+ 059T 'X'
+ 063T TOT (007)  (AD=OIL ) /*.01D003 N03,0.
+ 068T 'X'
+ 072T TOT (008)  (AD=OIL ) /*.01D003 N03,0.
+ 077T 'X'
+/
+ 005T 'X'
+ 008T TOT1 (001)  (AD=OIL EM=Z9,9% ) /*.01D005 N03,1.
+   /* A1000080000100001000010000100001100001008000004H
+ 014T 'X'
+ 017T TOT1 (002)  (AD=OIL EM=Z9,9% ) /*.01D005 N03,1.
+ 023T 'X'
+ 026T TOT1 (003)  (AD=OIL EM=Z9,9% ) /*.01D005 N03,1.
+ 032T 'X'
+ 035T TOT1 (004)  (AD=OIL EM=Z9,9% ) /*.01D005 N03,1.
+ 041T 'X'
+ 044T TOT1 (005)  (AD=OIL EM=Z9,9% ) /*.01D005 N03,1.
+ 050T 'X'
+ 053T TOT1 (006)  (AD=OIL EM=Z9,9% ) /*.01D005 N03,1.
+ 059T 'X'
+ 062T TOT1 (007)  (AD=OIL EM=Z9,9% ) /*.01D005 N03,1.
+ 068T 'X'
+ 071T TOT1 (008)  (AD=OIL EM=Z9,9% ) /*.01D005 N03,1.
+ 077T 'X'
+/
+ 005T 'X' (073)
+/
+ 004T PAS (001)  (AD=OIL ) /*.01D003 N03,0.
+   /* A1000200000100001000010000100001100001019000001H
+ 008T PAS (002)  (AD=OIL ) /*.01D003 N03,0.
+ 012T PAS (003)  (AD=OIL ) /*.01D003 N03,0.
+ 016T PAS (004)  (AD=OIL ) /*.01D003 N03,0.
+ 020T PAS (005)  (AD=OIL ) /*.01D003 N03,0.
+ 024T PAS (006)  (AD=OIL ) /*.01D003 N03,0.
+ 028T PAS (007)  (AD=OIL ) /*.01D003 N03,0.
+ 032T PAS (008)  (AD=OIL ) /*.01D003 N03,0.
+ 036T PAS (009)  (AD=OIL ) /*.01D003 N03,0.
+ 040T PAS (010)  (AD=OIL ) /*.01D003 N03,0.
+ 044T PAS (011)  (AD=OIL ) /*.01D003 N03,0.
+ 048T PAS (012)  (AD=OIL ) /*.01D003 N03,0.
+ 052T PAS (013)  (AD=OIL ) /*.01D003 N03,0.
+ 056T PAS (014)  (AD=OIL ) /*.01D003 N03,0.
+ 060T PAS (015)  (AD=OIL ) /*.01D003 N03,0.
+ 064T PAS (016)  (AD=OIL ) /*.01D003 N03,0.
+ 068T PAS (017)  (AD=OIL ) /*.01D003 N03,0.
+ 072T PAS (018)  (AD=OIL ) /*.01D003 N03,0.
+ 076T PAS (019)  (AD=OIL ) /*.01D003 N03,0.
+* MAP2: VALIDATION *****************************************************
+* MAP2: END OF MAP *****************************************************
+END
